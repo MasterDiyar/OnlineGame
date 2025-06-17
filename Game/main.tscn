@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://c6x8aaw268v3g"]
+
+[ext_resource type="PackedScene" uid="uid://hnw6wwn7vc6l" path="res://Game/menu.tscn" id="1_f5lw1"]
+[ext_resource type="Script" uid="uid://cary2mqxcmq6x" path="res://Game/Main.cs" id="1_gab3r"]
+[ext_resource type="PackedScene" uid="uid://lvgvh1bt5a6c" path="res://Server/server_manager.tscn" id="2_gab3r"]
+
+[node name="main" type="Node"]
+script = ExtResource("1_gab3r")
+
+[node name="Menu" parent="." node_paths=PackedStringArray("WhereButtonBe") instance=ExtResource("1_f5lw1")]
+WhereButtonBe = NodePath("../ServerManager")
+
+[node name="ServerManager" parent="." node_paths=PackedStringArray("SpawnNode") instance=ExtResource("2_gab3r")]
+SpawnNode = NodePath("..")

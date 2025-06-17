@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3 uid="uid://lvgvh1bt5a6c"]
+
+[ext_resource type="Script" uid="uid://huuvgobptfqa" path="res://Server/ServerManager.cs" id="1_w08su"]
+[ext_resource type="PackedScene" uid="uid://brthyfg8hji28" path="res://User/player.tscn" id="2_olyj6"]
+
+[node name="ServerManager" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_w08su")
+PlayerScene = ExtResource("2_olyj6")
+
+[node name="Spawns" type="Node" parent="."]
+
+[node name="Marker2D" type="Marker2D" parent="Spawns"]
+position = Vector2(103, 102)
+
+[node name="Marker2D2" type="Marker2D" parent="Spawns"]
+position = Vector2(741, 135)
+
+[node name="Marker2D3" type="Marker2D" parent="Spawns"]
+position = Vector2(381, 311)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("../Spawns")
+spawn_limit = 4

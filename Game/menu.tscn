@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=3 uid="uid://hnw6wwn7vc6l"]
+
+[ext_resource type="Script" uid="uid://cda0d6lp0om77" path="res://Game/Menu.cs" id="1_t1iua"]
+
+[node name="Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_t1iua")
+
+[node name="Host" type="Button" parent="."]
+layout_mode = 0
+offset_left = 17.0
+offset_top = 11.0
+offset_right = 176.0
+offset_bottom = 53.0
+text = "HOST"
+
+[node name="Join" type="Button" parent="."]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 64.0
+offset_right = 176.0
+offset_bottom = 121.0
+text = "JOIN"
+
+[node name="TextEdit" type="TextEdit" parent="."]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 130.0
+offset_right = 177.0
+offset_bottom = 177.0
+placeholder_text = "ip:"
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 537.0
+offset_top = 16.0
+offset_right = 577.0
+offset_bottom = 39.0
+text = "i am host?"
+
+[node name="Start" type="Button" parent="."]
+layout_mode = 0
+offset_left = 253.0
+offset_top = 100.0
+offset_right = 494.0
+offset_bottom = 192.0
+text = "START"
