@@ -8,6 +8,8 @@ public partial class ServerManager : Control
 	public int port = 8901;
 	[Export] private Node SpawnNode { get; set; }
 	[Export] private PackedScene PlayerScene{get;set;}
+	
+	public string Address = "127.0.0.1";
 
 	public override void _Ready()
 	{
@@ -89,7 +91,13 @@ public partial class ServerManager : Control
 	{
 		GD.Print("Joining server");
 		peer = new ENetMultiplayerPeer();
-		var err =peer.CreateClient("127.0.0.1", port);
+		var address = SpawnNode.GetNode<Menu>("Menu").GetNode<TextEdit>("TextEdit").Text;
+		if (address != "")
+		{
+			GD.Print("Joining server on address: ", address);
+			Address = address;
+		}
+		var err =peer.CreateClient(Address, port);
 		if (err != Error.Ok)
 		{
 			GD.PrintErr("Failed to create client");
