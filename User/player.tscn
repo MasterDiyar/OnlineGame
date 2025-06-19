@@ -1,11 +1,13 @@
-[gd_scene load_steps=6 format=3 uid="uid://brthyfg8hji28"]
+[gd_scene load_steps=7 format=3 uid="uid://brthyfg8hji28"]
 
 [ext_resource type="Script" uid="uid://bc040diqpoe3x" path="res://User/Player.cs" id="1_8bprb"]
 [ext_resource type="Texture2D" uid="uid://57se22shyjpf" path="res://icon.svg" id="1_xwu5f"]
 [ext_resource type="PackedScene" uid="uid://bc7jtpmd77b0h" path="res://User/bullet.tscn" id="2_8rn6p"]
+[ext_resource type="Texture2D" uid="uid://bx1b8spdtj1b6" path="res://User/Player.png" id="3_7sxjh"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_8bprb"]
-size = Vector2(16, 16)
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_7sxjh"]
+radius = 4.0
+height = 16.0
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_8bprb"]
 properties/0/path = NodePath(".:position")
@@ -19,17 +21,18 @@ properties/2/spawn = true
 properties/2/replication_mode = 1
 
 [node name="Player" type="CharacterBody2D"]
+texture_filter = 3
 scale = Vector2(2, 2)
-slide_on_ceiling = false
+floor_constant_speed = true
 script = ExtResource("1_8bprb")
 BulletScene = ExtResource("2_8rn6p")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_8bprb")
+shape = SubResource("CapsuleShape2D_7sxjh")
 
 [node name="Icon" type="Sprite2D" parent="."]
 scale = Vector2(0.125, 0.125)
-texture = ExtResource("1_xwu5f")
+texture = ExtResource("3_7sxjh")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_8bprb")
@@ -51,3 +54,5 @@ texture = ExtResource("1_xwu5f")
 points = PackedVector2Array(-7.5, -10.5, 7.5, -10.5)
 width = 1.0
 default_color = Color(0.831373, 0, 0, 1)
+
+[node name="upgrades" type="Node" parent="."]

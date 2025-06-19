@@ -5,7 +5,7 @@ public partial class Player : CharacterBody2D
 {
 	[Export] public float Speed = 40f;
 	[Export] public PackedScene BulletScene{get; set;}
-	
+	private float _bulletSpeed = 400f;
 	public float Hp = 10f;
 	public float Angle = 0f;
 	
@@ -36,26 +36,50 @@ public partial class Player : CharacterBody2D
 			Velocity = input * Speed;
 			MoveAndSlide();
 			
-			Angle = GetAngleTo(GetGlobalMousePosition());
-			Weapon.Position = 12.5f * new Vector2(Mathf.Cos(Angle), Mathf.Sin(Angle));
-			Weapon.Rotation = Angle;
-
-			if (Input.IsActionJustPressed("lm"))
-			{
-				Rpc("Vistrel");
-			}
+			HandleShooting();
 			
 			RpcUnreliablePosition(GlobalPosition);
 			
 		}
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void Vistrel()
+	private void HandleShooting()
 	{
-		Bullet bullet = BulletScene.Instantiate<Bullet>();
-		bullet.GlobalPosition = GlobalPosition +  20f * new Vector2(Mathf.Cos(Angle), Mathf.Sin(Angle));
-		bullet.Rotation = Angle;
+		Angle = GetAngleTo(GetGlobalMousePosition());
+		Weapon.Position = 12.5f * new Vector2(Mathf.Cos(Angle), Mathf.Sin(Angle));
+		Weapon.Rotation = Angle;
+
+		if (Input.IsActionJustPressed("lm") )
+		{
+			Rpc(nameof(RequestShoot), Angle);
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void RequestShoot(float angle)
+	{
+		// Only server actually spawns bullets
+		if (Multiplayer.IsServer())
+		{
+			Rpc(nameof(PerformShoot), angle, Multiplayer.GetRemoteSenderId());
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+	private void PerformShoot(float angle, int shooterId)
+	{
+		var bullet = BulletScene.Instantiate<Bullet>();
+    
+		// Calculate spawn position in front of weapon
+		Vector2 spawnOffset = 20f * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+		bullet.GlobalPosition = GlobalPosition + spawnOffset;
+		bullet.Rotation = angle;
+    
+		// Set bullet properties
+		bullet.Speed = _bulletSpeed;
+		bullet.ShooterId = shooterId; // Track who shot this
+    
+		// Add to scene
 		GetTree().Root.AddChild(bullet);
 	}
 
@@ -64,5 +88,22 @@ public partial class Player : CharacterBody2D
 	{
 		if (!IsMultiplayerAuthority())
 			GlobalPosition = pos;
+	}
+	
+	[Rpc(MultiplayerApi.RpcMode.Authority)]
+	public void TakeDamage(float damage)
+	{
+		Hp -= damage;
+		GD.Print($"{Name} took {damage} damage. HP: {Hp}");
+		if (Hp <= 0)
+		{
+			Rpc(nameof(Die));
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority)]
+	private void Die()
+	{
+		GD.Print($"{Name} died!");
 	}
 }

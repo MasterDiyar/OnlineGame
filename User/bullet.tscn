@@ -1,25 +1,35 @@
-[gd_scene load_steps=5 format=3 uid="uid://bc7jtpmd77b0h"]
+[gd_scene load_steps=6 format=3 uid="uid://bc7jtpmd77b0h"]
 
 [ext_resource type="Script" uid="uid://c4ygsed2jiwsp" path="res://User/Bullet.cs" id="1_ru1yn"]
 [ext_resource type="Texture2D" uid="uid://57se22shyjpf" path="res://icon.svg" id="1_tssu3"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ru1yn"]
-size = Vector2(6, 6)
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ru1yn"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ru1yn"]
+radius = 3.0
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ru1yn"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
 
 [node name="Bullet" type="RigidBody2D"]
-inertia = 1.0
+disable_mode = 2
+mass = 0.5
+physics_material_override = SubResource("PhysicsMaterial_ru1yn")
+lock_rotation = true
+contact_monitor = true
 script = ExtResource("1_ru1yn")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_ru1yn")
+shape = SubResource("CircleShape2D_ru1yn")
 
 [node name="Icon" type="Sprite2D" parent="."]
 scale = Vector2(0.05, 0.05)
 texture = ExtResource("1_tssu3")
 
 [node name="Timer" type="Timer" parent="."]
+wait_time = 3.0
 autostart = true
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]

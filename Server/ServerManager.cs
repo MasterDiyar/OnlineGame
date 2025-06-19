@@ -131,6 +131,7 @@ public partial class ServerManager : Control
 				pl.Position = new Vector2(int.Parse(pl.Name)%10 * 100+100, 100);
 			}
 		}
+		SpawnNode.GetNode("Menu").QueueFree();
 	}
 
 	public void AddPlayer(long id)
