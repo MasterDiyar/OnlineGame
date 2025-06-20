@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bc7jtpmd77b0h"]
+[gd_scene load_steps=7 format=3 uid="uid://bc7jtpmd77b0h"]
 
 [ext_resource type="Script" uid="uid://c4ygsed2jiwsp" path="res://User/Bullet.cs" id="1_ru1yn"]
 [ext_resource type="Texture2D" uid="uid://57se22shyjpf" path="res://icon.svg" id="1_tssu3"]
@@ -12,6 +12,9 @@ radius = 3.0
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 1
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ru1yn"]
+size = Vector2(7, 7)
 
 [node name="Bullet" type="RigidBody2D"]
 disable_mode = 2
@@ -34,3 +37,8 @@ autostart = true
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_ru1yn")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("RectangleShape2D_ru1yn")

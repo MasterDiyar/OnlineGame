@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://brthyfg8hji28"]
+[gd_scene load_steps=8 format=3 uid="uid://brthyfg8hji28"]
 
 [ext_resource type="Script" uid="uid://bc040diqpoe3x" path="res://User/Player.cs" id="1_8bprb"]
 [ext_resource type="Texture2D" uid="uid://57se22shyjpf" path="res://icon.svg" id="1_xwu5f"]
@@ -19,6 +19,9 @@ properties/1/replication_mode = 1
 properties/2/path = NodePath("Node2D:rotation")
 properties/2/spawn = true
 properties/2/replication_mode = 1
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_7sxjh"]
+radius = 8.0
 
 [node name="Player" type="CharacterBody2D"]
 texture_filter = 3
@@ -56,3 +59,8 @@ width = 1.0
 default_color = Color(0.831373, 0, 0, 1)
 
 [node name="upgrades" type="Node" parent="."]
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CircleShape2D_7sxjh")

@@ -26,7 +26,8 @@ public partial class Player : CharacterBody2D
 		{
 
 			Speed = Input.IsActionPressed("shift") ? 60f : 40f;
-			HpLine.Points[1] = new Vector2(-10.5f, -7.5f + 1.5f * Hp);
+			HpLine.RemovePoint(1);
+			HpLine.AddPoint(new Vector2(-7.5f + 1.5f * Hp, -10.5f));
 			
 			Vector2 input = new Vector2(
 				Input.GetActionStrength("d") - Input.GetActionStrength("a"),
@@ -49,7 +50,7 @@ public partial class Player : CharacterBody2D
 		Weapon.Position = 12.5f * new Vector2(Mathf.Cos(Angle), Mathf.Sin(Angle));
 		Weapon.Rotation = Angle;
 
-		if (Input.IsActionJustPressed("lm") )
+		if (Input.IsActionJustPressed("lm"))
 		{
 			Rpc(nameof(RequestShoot), Angle);
 		}
@@ -69,17 +70,14 @@ public partial class Player : CharacterBody2D
 	private void PerformShoot(float angle, int shooterId)
 	{
 		var bullet = BulletScene.Instantiate<Bullet>();
-    
-		// Calculate spawn position in front of weapon
-		Vector2 spawnOffset = 20f * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+
+		Vector2 spawnOffset = 24f * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
 		bullet.GlobalPosition = GlobalPosition + spawnOffset;
 		bullet.Rotation = angle;
-    
-		// Set bullet properties
+		
 		bullet.Speed = _bulletSpeed;
-		bullet.ShooterId = shooterId; // Track who shot this
-    
-		// Add to scene
+		bullet.ShooterId = shooterId; 
+		
 		GetTree().Root.AddChild(bullet);
 	}
 
