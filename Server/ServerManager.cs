@@ -140,6 +140,7 @@ public partial class ServerManager : Control
 		{
 			GD.Print($"Server creating player {id}");
 			var player = PlayerScene.Instantiate<Player>();
+			var namePlayer = "";
 			player.Name = $"{id}";
         
 			// Add to spawn node or root

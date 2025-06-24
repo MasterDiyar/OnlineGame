@@ -26,7 +26,6 @@ radius = 8.0
 [node name="Player" type="CharacterBody2D"]
 texture_filter = 3
 scale = Vector2(2, 2)
-floor_constant_speed = true
 script = ExtResource("1_8bprb")
 BulletScene = ExtResource("2_8rn6p")
 

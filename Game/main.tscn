@@ -12,3 +12,7 @@ WhereButtonBe = NodePath("../ServerManager")
 
 [node name="ServerManager" parent="." node_paths=PackedStringArray("SpawnNode") instance=ExtResource("2_gab3r")]
 SpawnNode = NodePath("..")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
+zoom = Vector2(2.5, 2.5)
