@@ -1,13 +1,14 @@
-[gd_scene load_steps=8 format=3 uid="uid://brthyfg8hji28"]
+[gd_scene load_steps=9 format=3 uid="uid://brthyfg8hji28"]
 
 [ext_resource type="Script" uid="uid://bc040diqpoe3x" path="res://User/Player.cs" id="1_8bprb"]
 [ext_resource type="Texture2D" uid="uid://57se22shyjpf" path="res://icon.svg" id="1_xwu5f"]
 [ext_resource type="PackedScene" uid="uid://bc7jtpmd77b0h" path="res://User/bullet.tscn" id="2_8rn6p"]
 [ext_resource type="Texture2D" uid="uid://bx1b8spdtj1b6" path="res://User/Player.png" id="3_7sxjh"]
+[ext_resource type="Script" uid="uid://cjugadnqqar6o" path="res://User/Upgrades.cs" id="5_36tpc"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_7sxjh"]
-radius = 4.0
-height = 16.0
+radius = 3.95
+height = 15.5
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_8bprb"]
 properties/0/path = NodePath(".:position")
@@ -24,6 +25,8 @@ properties/2/replication_mode = 1
 radius = 8.0
 
 [node name="Player" type="CharacterBody2D"]
+top_level = true
+z_index = 2
 texture_filter = 3
 scale = Vector2(2, 2)
 script = ExtResource("1_8bprb")
@@ -58,8 +61,11 @@ width = 1.0
 default_color = Color(0.831373, 0, 0, 1)
 
 [node name="upgrades" type="Node" parent="."]
+script = ExtResource("5_36tpc")
 
 [node name="Area2D" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 shape = SubResource("CircleShape2D_7sxjh")
+
+[node name="ReloadTimer" type="Timer" parent="."]

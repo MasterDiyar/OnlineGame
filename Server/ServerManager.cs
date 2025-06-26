@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.IO;
 using System.Linq;
 
 public partial class ServerManager : Control
@@ -10,19 +11,19 @@ public partial class ServerManager : Control
 	[Export] private PackedScene PlayerScene{get;set;}
 	
 	public string Address = "127.0.0.1";
-
+	private Random rand = new Random();
+	private string[] maps;
 	public override void _Ready()
 	{
+		maps = File.ReadAllLines("Server/mapnames.txt");
+		
 		Multiplayer.PeerConnected += OnPeerConnected;
 		Multiplayer.PeerDisconnected += OnPeerDisconnected;
 		Multiplayer.ConnectedToServer += ConnectedToServeri;
 		Multiplayer.ConnectionFailed += () => GD.Print("Connection failed");
+		
 	}
-
-	/// <summary>
-	/// runs when the connection is successful and only runs on the clients
-	/// </summary>
-	/// <exception cref="NotImplementedException"></exception>
+	
 	private void ConnectedToServeri()
 	{
 		GD.Print("Connected to server");
@@ -31,14 +32,12 @@ public partial class ServerManager : Control
 	private void OnPeerConnected(long id)
 	{
 		GD.Print($"Client {id} connected.");
-		if (Multiplayer.IsServer())
-		{
+		if (Multiplayer.IsServer()) {
 			// First create the new player
 			AddPlayer(id);
         
 			// Send existing player info to the new client
-			foreach (var player in GameManager.Players)
-			{
+			foreach (var player in GameManager.Players) {
 				if (player.Id != id) // Don't send the new player their own info again
 				{
 					// Tell the new client to add existing players
@@ -51,14 +50,10 @@ public partial class ServerManager : Control
         
 			// Send the new player's info to all existing clients
 			var newPlayerInfo = GameManager.Players.FirstOrDefault(p => p.Id == id);
-			if (newPlayerInfo != null)
-			{
-				foreach (var existingPlayer in GameManager.Players)
-				{
+			if (newPlayerInfo != null) {
+				foreach (var existingPlayer in GameManager.Players) {
 					if (existingPlayer.Id != id) // Don't send to self
-					{
 						RpcId(existingPlayer.Id, nameof(ReceivePlayerInfo), newPlayerInfo.Name, newPlayerInfo.Id);
-					}
 				}
 			}
 		}
@@ -111,6 +106,14 @@ public partial class ServerManager : Control
 	
 	public void StartButtonDown()
 	{
+		if (Multiplayer.IsServer()) { 
+			int seed = (int)DateTime.Now.Ticks;
+			rand = new Random(seed);
+			Rpc(nameof(SetRandomSeed), seed);
+		}else
+		{
+			RpcId(1, nameof(Bog));
+		}
 		Rpc("startGame");
 	}
 	
@@ -118,16 +121,13 @@ public partial class ServerManager : Control
 	public void startGame()
 	{
 		foreach (var players in GameManager.Players)
-		{
 			GD.Print($"Starting player {players.Id}");
-		}
 		
-		var scene = GD.Load<PackedScene>("res://Game/map.tscn").Instantiate<Node2D>();
+		var scene = GD.Load<PackedScene>(maps[rand.Next(maps.Length)]).Instantiate<Node2D>();
+		GetParent().GetNode<Camera2D>("Camera2D").Zoom = new Vector2(1920f / 1152, 1080f / 656);
 		GetTree().Root.AddChild(scene);
-		foreach (var player in SpawnNode.GetChildren())
-		{
-			if (player is Player pl)
-			{
+		foreach (var player in SpawnNode.GetChildren()) {
+			if (player is Player pl) {
 				pl.Position = new Vector2(int.Parse(pl.Name)%10 * 100+100, 100);
 			}
 		}
@@ -136,8 +136,7 @@ public partial class ServerManager : Control
 
 	public void AddPlayer(long id)
 	{
-		if (Multiplayer.IsServer())
-		{
+		if (Multiplayer.IsServer()) {
 			GD.Print($"Server creating player {id}");
 			var player = PlayerScene.Instantiate<Player>();
 			var namePlayer = "";
@@ -156,7 +155,6 @@ public partial class ServerManager : Control
 	[Rpc(MultiplayerApi.RpcMode.Authority)]
 	private void RemoteAddPlayer(long id)
 	{
-		// Skip if we're the server (already handled)
 		if (Multiplayer.IsServer()) return;
     
 		GD.Print($"Client adding player {id}");
@@ -199,5 +197,19 @@ public partial class ServerManager : Control
 		{
 			GameManager.Players.Add(info);
 		}
+	}
+	
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+	private void SetRandomSeed(int seed)
+	{
+		rand = new Random(seed);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void Bog()
+	{
+		int seed = (int)DateTime.Now.Ticks;
+		rand = new Random(seed);
+		Rpc(nameof(SetRandomSeed), seed);
 	}
 }

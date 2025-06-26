@@ -1,0 +1,47 @@
+[gd_scene load_steps=8 format=3 uid="uid://db7kvcx1537k5"]
+
+[ext_resource type="Shader" uid="uid://crx2c4nkkahso" path="res://Game/card.gdshader" id="1_1aqlq"]
+[ext_resource type="Texture2D" uid="uid://c0i0pn6c2dism" path="res://Game/Card.png" id="1_m3ab1"]
+[ext_resource type="Texture2D" uid="uid://be43whm0ltc2c" path="res://Game/oblaka2.png" id="2_h54hk"]
+[ext_resource type="Script" uid="uid://de3pcmeaf0dfc" path="res://Game/Card.cs" id="2_pypdx"]
+[ext_resource type="Texture2D" uid="uid://bx1b8spdtj1b6" path="res://User/Player.png" id="5_2eotv"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pypdx"]
+shader = ExtResource("1_1aqlq")
+shader_parameter/position = Vector2(0, 0)
+shader_parameter/radius = 0.0
+shader_parameter/borderWidth = 0.02
+shader_parameter/burnMult = 0.125
+shader_parameter/noiseTexture = ExtResource("2_h54hk")
+shader_parameter/burnColor = Color(0.435294, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_m3ab1"]
+font_size = 18
+font_color = Color(0, 0, 0, 1)
+
+[node name="card" type="Sprite2D"]
+top_level = true
+visibility_layer = 129
+texture_filter = 3
+material = SubResource("ShaderMaterial_pypdx")
+texture = ExtResource("1_m3ab1")
+script = ExtResource("2_pypdx")
+
+[node name="upgrade draw" type="TextureRect" parent="."]
+show_behind_parent = true
+offset_left = 1.0
+offset_top = -46.0
+offset_right = 32.0
+offset_bottom = -17.0
+texture = ExtResource("5_2eotv")
+expand_mode = 1
+
+[node name="Text" type="Label" parent="."]
+offset_left = -35.0
+offset_top = -13.0
+offset_right = 174.0
+offset_bottom = 175.0
+scale = Vector2(0.33, 0.33)
+text = "eto pank rock sukaaa"
+label_settings = SubResource("LabelSettings_m3ab1")
+clip_text = true
