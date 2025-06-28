@@ -10,3 +10,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_f0ium")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(822, 511)
+zoom = Vector2(2.5, 2.5)

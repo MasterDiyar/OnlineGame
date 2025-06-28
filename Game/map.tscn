@@ -23,12 +23,12 @@ shader_parameter/stripe_angle = 0.5
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_f20gk"]
 shader = ExtResource("2_r18ox")
-shader_parameter/base_col = Color(0.168627, 0.537255, 0.901961, 1)
-shader_parameter/border_thickness = 0.1
+shader_parameter/base_col = Color(0.168627, 0.211765, 0.152941, 1)
+shader_parameter/border_thickness = 0.0
 shader_parameter/isoline_offset = 0.4
 shader_parameter/isoline_offset2 = 0.325
 shader_parameter/pattern_scale = 7.56
-shader_parameter/animation_speed = 0.182
+shader_parameter/animation_speed = 0.103
 shader_parameter/time_multiplier = 2.0
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_h0juo"]

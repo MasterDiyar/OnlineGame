@@ -13,6 +13,9 @@ public partial class ServerManager : Control
 	public string Address = "127.0.0.1";
 	private Random rand = new Random();
 	private string[] maps;
+	public int AliveUserCount = 0;
+	public int UserCount = 0;
+	private int[] deadUsers = [];
 	public override void _Ready()
 	{
 		maps = File.ReadAllLines("Server/mapnames.txt");
@@ -77,9 +80,11 @@ public partial class ServerManager : Control
 		}
 		peer.Host.Compress(ENetConnection.CompressionMode.RangeCoder);
 		Multiplayer.MultiplayerPeer = peer;
+		UserCount++;
 		GD.Print("Server started.");
 		AddPlayer(1);
 		sendPlayerInfo("Al Capone", 1);
+		
 	}
 
 	public void JoinButtonDown()
@@ -211,5 +216,35 @@ public partial class ServerManager : Control
 		int seed = (int)DateTime.Now.Ticks;
 		rand = new Random(seed);
 		Rpc(nameof(SetRandomSeed), seed);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority)]
+	public void EndGame(int winnerId)
+	{
+		RpcId(winnerId, nameof(Player.PerformDie));
+		
+		deadUsers = [];
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority)]
+	public void CheckGameOver(string nameID)
+	{
+		deadUsers.Append(int.Parse(nameID));
+		var alivePlayers = UserCount - SpawnNode.GetChildren().Count(playings => playings is Player { Hp: > 0 });
+		if (alivePlayers > 1) return;
+		
+		var winnerId = -1;
+		foreach (var playings in SpawnNode.GetChildren()) {
+			if (playings is Player { Hp: > 0 } pl) {
+				winnerId = int.Parse(pl.Name.ToString());
+			}
+		} EndGame(winnerId);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+	private void StartCardPick(int[] users)
+	{
+		var cardPick = GD.Load<PackedScene>("res://Game/card_pick.tscn").Instantiate<CardPick>();
+		
 	}
 }

@@ -201,19 +201,63 @@ public partial class Player : CharacterBody2D
 			GlobalPosition = pos;
 	}
 	
-	[Rpc(MultiplayerApi.RpcMode.Authority)]
-	public void TakeDamage(float damage)
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+	public void RequestTakeDamage(float damage, int attackerId)
 	{
-		Hp -= damage;
-		GD.Print($"{Name} took {damage} damage. HP: {Hp}");
-		if (Hp <= 0)
-			Rpc(nameof(Die));
+		// Only server processes damage
+		if (Multiplayer.IsServer())
+		{
+			Hp -= damage;
+			GD.Print($"{Name} took {damage} damage from {attackerId}. HP: {Hp}");
+        
+			// Update all clients about HP change
+			Rpc(nameof(UpdateHealth), Hp);
+        
+			if (Hp <= 0)
+			{
+				Rpc(nameof(PerformDie), attackerId);
+			}
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+	private void UpdateHealth(float newHp) {
+		Hp = newHp;
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+	public void PerformDie(int killerId)
+	{
+		var server = GetParent().GetNode<ServerManager>("ServerManager");
+		Visible = false;
+		SetProcess(false);
+		SetPhysicsProcess(false);
+		
+		server.Rpc(nameof(ServerManager.CheckGameOver), Name.ToString());
 		
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.Authority)]
-	private void Die()
+
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+	public void PerformRespawn()
 	{
-		GD.Print($"{Name} died!");
+		Visible = true;
+		SetProcess(true);
+		SetPhysicsProcess(true);
+		Hp = MaxHp;
+		RoundStart();
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+	public void AddUpgrade(string upgradeName)
+	{
+		Upgrades.ConsumeUpgrade(upgradeName);
 	}
 }
+//King of hill
+//Save the crown
+//
+
+
+

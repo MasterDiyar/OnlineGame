@@ -47,8 +47,14 @@ public partial class Upgrades : Node
 				DamageModifier *= 5;
 				HpModifier /= 5;
 				break;
+			case "Moon Walk":
+				GravityModifier /= 5.2f;
+				DamageModifier *= 1.2f;
+				break;
+			case "Bottom of sea":
+				GravityModifier *= 5f;
+				BulletSpeedModifier *= 1.4f;
+				break;
 		}
 	}
-	
-	
 }
