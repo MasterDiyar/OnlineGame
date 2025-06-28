@@ -15,4 +15,10 @@ public partial class Menu : Control
 		_start = GetNode<Button>("Start");
 		_start.Pressed += WhereButtonBe.StartButtonDown;
 	}
+
+	public void ButtonOff()
+	{
+		_host.Disabled = true;
+		_join.Disabled = true;
+	}
 }

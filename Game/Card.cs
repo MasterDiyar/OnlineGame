@@ -6,12 +6,13 @@ public partial class Card : Sprite2D
 	private Vector2 _textureSize = Vector2.Zero;
 	private bool _check = false;
 	
+	public event Action<string, int> CardSelected;
+	public string CardName { get; set; }
+	
 	public override void _Ready()
 	{
 		if (Texture != null)
-		{
 			_textureSize = Texture.GetSize();
-		}
 	}
 
 	public override void _Input(InputEvent @event)
@@ -21,8 +22,7 @@ public partial class Card : Sprite2D
 			Vector2 worldPos = GetGlobalMousePosition();
 			Vector2 localPos = ToLocal(worldPos);
             
-			if (GetRect().HasPoint(localPos) && _check)
-			{
+			if (GetRect().HasPoint(localPos) && _check) {
 				Vector2 uv = GetUvFromClick(localPos);
 				BurnCard(uv);
 			}
@@ -64,5 +64,19 @@ public partial class Card : Sprite2D
 	{
 		if (Material is ShaderMaterial shaderMaterial)
 			shaderMaterial.SetShaderParameter("radius", value);
+	}
+	private void OnCardPressed()
+	{
+		CardSelected?.Invoke(CardName, Multiplayer.GetUniqueId());
+	}
+    
+	public void HighlightAsChosen()
+	{
+		// Визуальное выделение выбранной карты
+	}
+    
+	public void Disable()
+	{
+		// Отключение карты после выбора
 	}
 }

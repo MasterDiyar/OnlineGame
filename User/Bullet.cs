@@ -63,15 +63,14 @@ public partial class Bullet : RigidBody2D
 
 		GD.Print("Bullet hit something");
 
-		// Check if we hit a player and it's not the shooter
 		if (hitNode is Player player && player.GetMultiplayerAuthority() != ShooterId)
 		{
-			GD.Print($"Hit player {player.Name}");
-			// Call the TakeDamage method on the player's instance
-			player.Rpc(nameof(Player.TakeDamage), Damage);
+			player.RpcId(player.GetMultiplayerAuthority(), 
+				nameof(Player.RequestTakeDamage), 
+				Damage, 
+				ShooterId);
 		}
-
-		// Destroy the bullet on all clients
+		
 		Rpc(nameof(Destroy));
 	}
 
