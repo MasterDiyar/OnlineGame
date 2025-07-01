@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class Mapcon : Node2D
+public partial class Mapcon : Map
 {
 	[Export]Sprite2D bgSprite;
 	public override void _Ready()

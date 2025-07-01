@@ -14,3 +14,8 @@ script = ExtResource("1_f0ium")
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(822, 511)
 zoom = Vector2(2.5, 2.5)
+
+[node name="PickLine" type="Line2D" parent="."]
+points = PackedVector2Array(-45, -67, -45, 67, 45, 67, 45, -67)
+closed = true
+width = 2.0

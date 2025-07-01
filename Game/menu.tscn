@@ -49,6 +49,7 @@ offset_left = 253.0
 offset_top = 100.0
 offset_right = 494.0
 offset_bottom = 192.0
+disabled = true
 text = "START"
 
 [node name="Name" type="TextEdit" parent="."]

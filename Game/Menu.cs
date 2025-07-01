@@ -16,9 +16,16 @@ public partial class Menu : Control
 		_start.Pressed += WhereButtonBe.StartButtonDown;
 	}
 
-	public void ButtonOff()
+	public void HostButtonOff()
 	{
+		_start.Disabled = false;
 		_host.Disabled = true;
 		_join.Disabled = true;
+	}
+
+	public void UserButtonOff()
+	{
+		_host.Disabled = false;
+		_join.Disabled = false;
 	}
 }

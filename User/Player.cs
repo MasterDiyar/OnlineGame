@@ -50,6 +50,7 @@ public partial class Player : CharacterBody2D
 	private Timer ReloadTimer;
 
 	public bool CardVibor = true;
+	public bool Died = false;
 	private bool reload = true;
 	
 	public override void _Ready()
@@ -228,13 +229,14 @@ public partial class Player : CharacterBody2D
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
 	public void PerformDie(int killerId)
 	{
+		if (Died) return;
+		Died = true;
 		var server = GetParent().GetNode<ServerManager>("ServerManager");
 		Visible = false;
 		SetProcess(false);
 		SetPhysicsProcess(false);
 		
-		server.Rpc(nameof(ServerManager.CheckGameOver), Name.ToString());
-		
+		server.RpcId(1,nameof(ServerManager.CheckGameOver), Name.ToString());
 	}
 
 
@@ -242,7 +244,9 @@ public partial class Player : CharacterBody2D
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
 	public void PerformRespawn()
 	{
+		Died = false;
 		Visible = true;
+		
 		SetProcess(true);
 		SetPhysicsProcess(true);
 		Hp = MaxHp;
