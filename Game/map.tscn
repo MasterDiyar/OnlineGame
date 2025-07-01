@@ -1,8 +1,8 @@
 [gd_scene load_steps=8 format=3 uid="uid://drffv8fbbnniv"]
 
-[ext_resource type="Shader" uid="uid://crkklwhnwuyeu" path="res://Game/pyramids.gdshader" id="1_h0juo"]
+[ext_resource type="Shader" path="res://Game/pyramids.gdshader" id="1_h0juo"]
 [ext_resource type="Script" uid="uid://3iyxaxqumju3" path="res://Game/boat.cs" id="2_52nmg"]
-[ext_resource type="Shader" uid="uid://bpfepk0ubqkxd" path="res://Game/bgfog.gdshader" id="2_r18ox"]
+[ext_resource type="Shader" path="res://Game/bgfog.gdshader" id="2_r18ox"]
 [ext_resource type="Texture2D" uid="uid://clsr46unqyfsl" path="res://Game/tilemaap.png" id="3_52nmg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_on5ho"]

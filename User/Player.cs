@@ -72,7 +72,7 @@ public partial class Player : CharacterBody2D
 		Speed = Origin["speed"] * Upgrades.SpeedModifier;
 		Gravity = Origin["gravity"] * Upgrades.GravityModifier;
 		JumpForce = -Origin["jumpforce"] * Upgrades.JumpModifier; 
-		CoyoteTime = Origin["coyotetime"];
+		CoyoteTime = Origin["coyotetime"]* Upgrades.CoyoteTimeModifier;
 		_bulletSpeed = Origin["bulletspeed"] * Upgrades.BulletSpeedModifier;
 		_bulletGravity = Origin["bulletgravity"] * Upgrades.BulletGravityModifier;
 		Ammo = Math.Min(1, (int)Origin["ammo"] + Upgrades.AmmoCountModifier);
@@ -83,42 +83,39 @@ public partial class Player : CharacterBody2D
 
 	public override void _PhysicsProcess(double delta)
 	{
+		var linehp = Mathf.Clamp(Hp / MaxHp, 0, 1);
+		HpLine.SetPointPosition(1, new Vector2(-7.5f + 15f * linehp, -10.5f));
 		if (GetNode<MultiplayerSynchronizer>("MultiplayerSynchronizer").GetMultiplayerAuthority() == Multiplayer.GetUniqueId() && CardVibor)
 		{
-			var linehp = Mathf.Clamp(Hp / MaxHp, 0, 1);
-			HpLine.SetPointPosition(1, (new Vector2(-7.5f + 15f * linehp, -10.5f)));
-			
 			Vector2 velocity = Velocity;
 
 			inputDir = new Vector2(
-            Input.GetActionStrength("d") - Input.GetActionStrength("a"),0);
+			Input.GetActionStrength("d") - Input.GetActionStrength("a"), 0);
 
 			var speed = Input.IsActionPressed("shift") ? Speed * 1.5f : Speed;
-			
-			
 
 			if (IsOnFloor() || IsOnWall())
 				coyoteTimer = CoyoteTime;
 			else
 				coyoteTimer -= (float)delta;
-			
+
 			if (!IsOnFloor() && !IsOnWall())
 				velocity.Y += Gravity * (float)delta;
 
 			if (Input.IsActionJustPressed("jump") && coyoteTimer > 0){
 				if (IsOnWall() && !IsOnFloor()){
-					int wallDir = GetWallNormal().X > 0 ? -1 : 1; 
+					int wallDir = GetWallNormal().X > 0 ? -1 : 1;
 					velocity.X = wallDir * WallJumpPush;
 					velocity.Y = WallJumpForce;
-				}else
+				} else
 					velocity.Y = JumpForce;
-				coyoteTimer = 0; 
+				coyoteTimer = 0;
 			}
 
 			velocity.X = inputDir.X * speed;
 
 			Velocity = velocity;
-			
+
 			MoveAndSlide();
 			HandleShooting();
 			RpcUnreliablePosition(GlobalPosition);
@@ -138,24 +135,19 @@ public partial class Player : CharacterBody2D
 		BulletCount = Math.Min(1, (int)Origin["bulletcount"] + Upgrades.BulletCountModifier);
 	}
 
-	private void HandleShooting()
-	{
-		
+	private void HandleShooting(){	
 		Angle = GetAngleTo(GetGlobalMousePosition());
 		Weapon.Position = 12.5f * new Vector2(Mathf.Cos(Angle), Mathf.Sin(Angle));
 		Weapon.Rotation = Angle;
 
-		if (Input.IsActionJustPressed("lm"))
-		{
+		if (Input.IsActionJustPressed("lm")){
 			if (BulletCount <= 0 || Ammo <= 0) return;
 			var consumed = Math.Min(BulletCount, Ammo);
 			BulletCount -= consumed;
 			for (int i = 0; i < consumed; i++)
 				Rpc(nameof(RequestShoot), Angle);
 			if (BulletCount <= 0)
-			{
 				ReloadTimer.Start();
-			}
 		}
 	}
 
@@ -173,11 +165,8 @@ public partial class Player : CharacterBody2D
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	private void RequestShoot(float angle)
 	{
-		// Only server actually spawns bullets
 		if (Multiplayer.IsServer())
-		{
 			Rpc(nameof(PerformShoot), angle, Multiplayer.GetRemoteSenderId());
-		}
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
@@ -206,18 +195,13 @@ public partial class Player : CharacterBody2D
 	public void RequestTakeDamage(float damage, int attackerId)
 	{
 		// Only server processes damage
-		if (Multiplayer.IsServer())
-		{
+		if (Multiplayer.IsServer()){
 			Hp -= damage;
 			GD.Print($"{Name} took {damage} damage from {attackerId}. HP: {Hp}");
-        
-			// Update all clients about HP change
 			Rpc(nameof(UpdateHealth), Hp);
         
 			if (Hp <= 0)
-			{
 				Rpc(nameof(PerformDie), attackerId);
-			}
 		}
 	}
 
@@ -238,8 +222,6 @@ public partial class Player : CharacterBody2D
 		
 		server.RpcId(1,nameof(ServerManager.CheckGameOver), Name.ToString());
 	}
-
-
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
 	public void PerformRespawn()

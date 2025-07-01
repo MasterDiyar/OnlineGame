@@ -5,15 +5,17 @@ public partial class Bullet : RigidBody2D
 {
 	public float Damage = 2;
 	public float Speed = 100f;
+	public float Acceletation = 0, acceleration = 0;
+	public float GravityForce = 981f, LifeSteal = 0;
 	public int ShooterId { get; set; } 
 
 	public override void _Ready()
 	{
 		SetupDestructionTimer();
-		
+		GravityScale = GravityForce / 981;
+
 		if (Multiplayer.IsServer())
-			SetupCollisionDetection();
-		
+			SetupCollisionDetection();	
 	}
 
 	private void SetupDestructionTimer()
@@ -33,21 +35,13 @@ public partial class Bullet : RigidBody2D
 		BodyEntered += OnBodyEntered;
 		var area = GetNodeOrNull<Area2D>("Area2D");
 		
-		if (area != null) {
-			area.AreaEntered += OnAreaEntered;
-		} else
-			GD.PushWarning("Bullet Area2D node not found - area detection won't work");
+		if (area != null) area.AreaEntered += OnAreaEntered;
+		else GD.PushWarning("Bullet Area2D node not found - area detection won't work");
 	}
 	
-	private void OnAreaEntered(Area2D area)
-	{
-		HandleHit(area.GetParent());
-	}
+	private void OnAreaEntered(Area2D area) { HandleHit(area.GetParent()); }
 
-	private void OnBodyEntered(Node body)
-	{
-		HandleHit(body);
-	}
+	private void OnBodyEntered(Node body) { HandleHit(body); }
 
 	
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
@@ -60,15 +54,15 @@ public partial class Bullet : RigidBody2D
 	private void HandleHit(Node hitNode)
 	{
 		if (!Multiplayer.IsServer()) return;
-
 		GD.Print("Bullet hit something");
 
-		if (hitNode is Player player && player.GetMultiplayerAuthority() != ShooterId)
-		{
-			player.RpcId(player.GetMultiplayerAuthority(), 
-				nameof(Player.RequestTakeDamage), 
-				Damage, 
-				ShooterId);
+		if (hitNode is Player player){
+			if (player.GetMultiplayerAuthority() != ShooterId)
+				player.RpcId(player.GetMultiplayerAuthority(),
+					nameof(Player.RequestTakeDamage), Damage * acceleration / 2, ShooterId);
+			if (LifeSteal != 0)
+				player.GetParent().GetNode<Player>($"{ShooterId}").RpcId(ShooterId,
+				nameof(Player.RequestTakeDamage), Damage * LifeSteal/100, ShooterId);
 		}
 		
 		Rpc(nameof(Destroy));
@@ -76,15 +70,16 @@ public partial class Bullet : RigidBody2D
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (Multiplayer.IsServer())
-		{
-			var linearVelocity = (float)delta * Speed * new Vector2(Mathf.Cos(Rotation), Mathf.Sin(Rotation));
+		if (Multiplayer.IsServer()){
+			var linearVelocity = Vector2.Zero;
+			acceleration += Acceletation / 100;
+			if (acceleration == 0)
+				linearVelocity = (float)delta * Speed * new Vector2(Mathf.Cos(Rotation), Mathf.Sin(Rotation));
+			else
+				linearVelocity = acceleration * (float)delta * Speed * new Vector2(Mathf.Cos(Rotation), Mathf.Sin(Rotation));
 			MoveAndCollide(linearVelocity);
 		}
 	}
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
-	private void Destroy()
-	{
-		QueueFree();
-	}
+	private void Destroy() { QueueFree(); }
 }

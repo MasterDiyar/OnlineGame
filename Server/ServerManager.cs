@@ -20,8 +20,7 @@ public partial class ServerManager : Control
 	private string[] maps;
 	private int[] DieQueue = [];
 	public string CurrentMap = "";
-	public int UserCount = 0;
-	public int AliveUserCount = 0;
+	public int UserCount = 0, AliveUserCount = 0;
 	
 	public override void _Ready()  
 	{  
@@ -78,7 +77,7 @@ public partial class ServerManager : Control
 		GD.Print("Server started.");  
 		AddPlayer(1);  
 		SendPlayerInfo("Al Capone", 1);
-		
+		CurrentMap = maps[rand.Next(maps.Length - 1)];
 		_menu.HostButtonOff();
 	}
 	
@@ -101,7 +100,7 @@ public partial class ServerManager : Control
 		_menu.UserButtonOff();
 	}  
 	
-	public void StartButtonDown() { Rpc("startGame"); } 
+	public void StartButtonDown() { Rpc(nameof(StartGame)); } 
 	
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer)]  
 	private void SendPlayerInfo(string name, int id)  
@@ -146,16 +145,12 @@ public partial class ServerManager : Control
 	{
 		if (AliveUserCount > 1) return;
 		
-		Rpc(nameof(EndGame));
+		if (Multiplayer.IsServer())
+			Rpc(nameof(EndGame), DieQueue);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
+	public void RequestAddDied(string id) { if (!DieQueue.Contains(int.Parse(id))) DieQueue.Append(int.Parse(id)); }
+
+
 	
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]  
 	public void StartGame()  
@@ -167,16 +162,18 @@ public partial class ServerManager : Control
 		
 		var scene = GD.Load<PackedScene>(CurrentMap).Instantiate<Map>();  
 		GetParent().GetNode<Camera2D>("Camera2D").Zoom = new Vector2(1920f / 1152, 1080f / 656);  
-		GetTree().Root.AddChild(scene);  
-		foreach (var player in SpawnNode.GetChildren())  
+		GetTree().Root.AddChild(scene);
+		foreach (var player in SpawnNode.GetChildren())
 			if (player is Player pl)
+			{
 				pl.Position = voids.UsersPosition(1, pl.Name);
-		
+				pl.RoundStart();
+			}
 		SpawnNode.GetNode("Menu").QueueFree();  
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void EndGame()
+	public void EndGame(int[] dieQueue)
 	{
 		foreach (var node in SpawnNode.GetChildren()) { switch (node) {
 				case Player { Died: false } pl:
@@ -187,7 +184,7 @@ public partial class ServerManager : Control
 					bullet.QueueFree(); break;
 			} }
 		var cardPickScene = GD.Load<PackedScene>("res://Game/card_pick.tscn").Instantiate<CardPick>();
-		cardPickScene.UserQueue = DieQueue;
+		cardPickScene.UserQueue = dieQueue;
 		SpawnNode.AddChild(cardPickScene);
 	}
 }

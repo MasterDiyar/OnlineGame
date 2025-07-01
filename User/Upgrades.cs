@@ -12,7 +12,7 @@ public partial class Upgrades : Node
 	public float BulletGravityModifier = 1f; //
 	public float JumpModifier = 1f; //
 	public float ReloadModifier = 1f; //
-	public float CritDamageModifier = 1f;
+	public float CoyoteTimeModifier = 1f;//
 	public float LifeStealModifier = 1f;
 	public float CooldownReductionModifier = 1f;
 	public float GravityModifier = 1f; //
