@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AgeOfEmpires.Server;
@@ -18,13 +19,15 @@ public partial class ServerManager : Control
 	private Menu _menu;
 	
 	private string[] maps;
-	private int[] DieQueue = [];
+	private List<int> DieQueue = [];
 	public string CurrentMap = "";
+	public Camera2D mainCamera;
 	public int UserCount = 0, AliveUserCount = 0;
 	
 	public override void _Ready()  
 	{  
 		_menu = SpawnNode.GetNode<Menu>("Menu");
+		mainCamera = SpawnNode.GetNode<Camera2D>("Camera2D");
 		maps = File.ReadAllLines("Server/mapnames.txt");  
          
 		Multiplayer.PeerConnected += OnPeerConnected;  
@@ -77,7 +80,7 @@ public partial class ServerManager : Control
 		GD.Print("Server started.");  
 		AddPlayer(1);  
 		SendPlayerInfo("Al Capone", 1);
-		CurrentMap = maps[rand.Next(maps.Length - 1)];
+		SetNewMap();
 		_menu.HostButtonOff();
 	}
 	
@@ -133,7 +136,12 @@ public partial class ServerManager : Control
 			GameManager.Players.Add(info);  
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.Authority)]
+	private void SetNewMap()
+	{
+		CurrentMap = maps[rand.Next(maps.Length)];
+		
+	}
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
 	private void ReceiveMapInfo(string map) { CurrentMap = map; }
 	
 											/* --REQUESTS-- */
@@ -141,14 +149,22 @@ public partial class ServerManager : Control
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer)]  
 	public void RequestCheckGameOver() { if (Multiplayer.IsServer()) CheckGameOver(); }
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]  
 	public void CheckGameOver()
 	{
-		if (AliveUserCount > 1) return;
-		
-		if (Multiplayer.IsServer())
-			Rpc(nameof(EndGame), DieQueue);
+		if (!Multiplayer.IsServer()) return;
+		AliveUserCount--;
+		if (AliveUserCount > 1) return; 
+		GD.Print("Game over.");
+		foreach(var diea in DieQueue)GD.Print(diea.ToString());
+		Rpc(nameof(EndGame), DieQueue.ToArray());
 	}
-	public void RequestAddDied(string id) { if (!DieQueue.Contains(int.Parse(id))) DieQueue.Append(int.Parse(id)); }
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)] 
+	public void RequestAddDied(string id) { if (!DieQueue.Contains(int.Parse(id)))
+	{
+		GD.Print($"trying to add {id}");
+		DieQueue.Add(int.Parse(id));
+	} }
 
 
 	
@@ -161,30 +177,43 @@ public partial class ServerManager : Control
 		AliveUserCount = UserCount;
 		
 		var scene = GD.Load<PackedScene>(CurrentMap).Instantiate<Map>();  
-		GetParent().GetNode<Camera2D>("Camera2D").Zoom = new Vector2(1920f / 1152, 1080f / 656);  
-		GetTree().Root.AddChild(scene);
+		Vector2I screenSize = DisplayServer.WindowGetSize();
+		mainCamera.Enabled = true;
+		mainCamera.Zoom = new Vector2(screenSize.X / 1152f, screenSize.Y / 656f);  
+		SpawnNode.AddChild(scene);
 		foreach (var player in SpawnNode.GetChildren())
-			if (player is Player pl)
-			{
+			if (player is Player pl) {
 				pl.Position = voids.UsersPosition(1, pl.Name);
-				pl.RoundStart();
+				pl.Rpc(nameof(pl.PerformRespawn));
 			}
-		SpawnNode.GetNode("Menu").QueueFree();  
+		if (SpawnNode.HasNode("Menu")) SpawnNode.GetNode("Menu").QueueFree();  
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void EndGame(int[] dieQueue)
 	{
+		mainCamera.Enabled = false;
+		var l = dieQueue.ToList();
 		foreach (var node in SpawnNode.GetChildren()) { switch (node) {
-				case Player { Died: false } pl:
-					pl.Died = false; break;
+				case Player pl:
+					if (!l.Contains(int.Parse(pl.Name))) {
+						l.Add(int.Parse(pl.Name));
+						pl.Rpc(nameof(pl.PerformWinnerDie));
+						GD.Print($"{pl.Name} has been survived");
+					} break;
 				case Map map:
 					map.QueueFree(); break;
 				case Bullet bullet:
 					bullet.QueueFree(); break;
 			} }
+		
+		GD.Print("Spawning Card Pick");
 		var cardPickScene = GD.Load<PackedScene>("res://Game/card_pick.tscn").Instantiate<CardPick>();
-		cardPickScene.UserQueue = dieQueue;
+		
+		cardPickScene.UserQueue = l;
 		SpawnNode.AddChild(cardPickScene);
+		if (!Multiplayer.IsServer()) return;
+		SetNewMap();
+		Rpc(nameof(ReceiveMapInfo), CurrentMap);
 	}
 }

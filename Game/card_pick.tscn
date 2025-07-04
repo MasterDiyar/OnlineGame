@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://xkfrup4enqnj"]
+[gd_scene load_steps=3 format=3 uid="uid://xkfrup4enqnj"]
 
 [ext_resource type="Script" uid="uid://cvfftpcj2mufl" path="res://Game/CardPick.cs" id="1_f0ium"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_f0ium"]
 
 [node name="CardPick" type="Control"]
 layout_mode = 3
@@ -16,6 +18,10 @@ position = Vector2(822, 511)
 zoom = Vector2(2.5, 2.5)
 
 [node name="PickLine" type="Line2D" parent="."]
+position = Vector2(500, 500)
 points = PackedVector2Array(-45, -67, -45, 67, 45, 67, 45, -67)
 closed = true
 width = 2.0
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_f0ium")

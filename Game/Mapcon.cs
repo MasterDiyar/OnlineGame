@@ -18,7 +18,7 @@ public partial class Mapcon : Map
 		}
 	}
 
-	public void ColorChange()
+	public override void ColorChange()
 	{
 		var random = new Random();
 		if (Material is ShaderMaterial shaderMaterial) {

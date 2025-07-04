@@ -1,17 +1,19 @@
-[gd_scene load_steps=8 format=3 uid="uid://drffv8fbbnniv"]
+[gd_scene load_steps=10 format=3 uid="uid://drffv8fbbnniv"]
 
-[ext_resource type="Shader" path="res://Game/pyramids.gdshader" id="1_h0juo"]
+[ext_resource type="Shader" uid="uid://crkklwhnwuyeu" path="res://Game/pyramids.gdshader" id="1_h0juo"]
 [ext_resource type="Script" uid="uid://3iyxaxqumju3" path="res://Game/boat.cs" id="2_52nmg"]
-[ext_resource type="Shader" path="res://Game/bgfog.gdshader" id="2_r18ox"]
+[ext_resource type="Shader" uid="uid://bpfepk0ubqkxd" path="res://Game/bgfog.gdshader" id="2_r18ox"]
 [ext_resource type="Texture2D" uid="uid://clsr46unqyfsl" path="res://Game/tilemaap.png" id="3_52nmg"]
+[ext_resource type="Texture2D" uid="uid://de3h3ix6geivb" path="res://Game/tilemaap2.png" id="5_52nmg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_on5ho"]
 shader = ExtResource("1_h0juo")
+shader_parameter/A = 1.0
 shader_parameter/lines_count = 10
 shader_parameter/triangles_count = 20
 shader_parameter/triangle_color = Color(0.8, 0.756863, 0.270588, 1)
 shader_parameter/background_color = Color(0.05, 0.05, 0.1, 1)
-shader_parameter/stripe_color = Color(0.0470588, 0.192157, 0.301961, 1)
+shader_parameter/stripe_color = Color(0.0461646, 0.190014, 0.29887, 1)
 shader_parameter/min_size = 0.05
 shader_parameter/max_size = 0.2
 shader_parameter/pulse_speed = 0.8
@@ -23,15 +25,32 @@ shader_parameter/stripe_angle = 0.5
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_f20gk"]
 shader = ExtResource("2_r18ox")
-shader_parameter/base_col = Color(0.168627, 0.211765, 0.152941, 1)
-shader_parameter/border_thickness = 0.0
-shader_parameter/isoline_offset = 0.4
-shader_parameter/isoline_offset2 = 0.325
-shader_parameter/pattern_scale = 7.56
-shader_parameter/animation_speed = 0.103
-shader_parameter/time_multiplier = 2.0
+shader_parameter/base_col = Color(0.0610477, 0.0264715, 0.00253877, 1)
+shader_parameter/border_thickness = 0.1
+shader_parameter/isoline_offset = 0.31
+shader_parameter/isoline_offset2 = 0.449
+shader_parameter/pattern_scale = 0.805
+shader_parameter/animation_speed = 0.01
+shader_parameter/time_multiplier = 1.0
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_h0juo"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aneyi"]
+shader = ExtResource("1_h0juo")
+shader_parameter/A = 0.55
+shader_parameter/lines_count = 10
+shader_parameter/triangles_count = 20
+shader_parameter/triangle_color = Color(0.176471, 0.866667, 0.054902, 1)
+shader_parameter/background_color = Color(0.05, 0.05, 0.1, 1)
+shader_parameter/stripe_color = Color(0.796869, 0.839018, 0.845759, 1)
+shader_parameter/min_size = 0.05
+shader_parameter/max_size = 0.2
+shader_parameter/pulse_speed = 0.8
+shader_parameter/seed = 0.0
+shader_parameter/rotation_speed = 0.3
+shader_parameter/stripe_width = 0.02
+shader_parameter/stripe_speed = 0.2
+shader_parameter/stripe_angle = 0.5
 
 [node name="map" type="Node2D"]
 material = SubResource("ShaderMaterial_on5ho")
@@ -39,7 +58,7 @@ script = ExtResource("2_52nmg")
 
 [node name="background" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_f20gk")
-scale = Vector2(2.25, 1.281)
+scale = Vector2(2.24721, 1.2842)
 texture = ExtResource("3_52nmg")
 centered = false
 
@@ -48,19 +67,30 @@ use_parent_material = true
 scale = Vector2(2.39106, 1)
 physics_material_override = SubResource("PhysicsMaterial_h0juo")
 
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
+position = Vector2(-43.4954, 314)
+polygon = PackedVector2Array(57.715, 153, 161.853, 156, 160.598, 46, 274.774, 45, 274.774, 82, 275.12, 162.867, 394.386, 163, 395.222, -123, 397.732, -122, 397.313, 164, 501.033, 166, 419.537, 334.574, 173.131, 311.23, 83.2267, 300)
+
 [node name="Polygon2D" type="Polygon2D" parent="StaticBody2D"]
 use_parent_material = true
 position = Vector2(-43.4954, 314)
 texture = ExtResource("3_52nmg")
-polygon = PackedVector2Array(79, 69, 162.271, 124, 265.991, 163, 265.573, 82, 274.774, 82, 275.12, 162.867, 394.386, 163, 499.943, 134.856, 419.537, 334.574, 173.131, 311.23, 98.7011, 260)
+polygon = PackedVector2Array(57.715, 153, 161.853, 156, 160.598, 46, 274.774, 45, 274.774, 82, 275.12, 162.867, 394.386, 163, 395.222, -123, 397.732, -122, 397.313, 164, 501.033, 166, 419.537, 334.574, 173.131, 311.23, 83.2267, 300)
+uv = PackedVector2Array(1327.63, 73.8231, 763.238, 169.079)
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
-visible = false
-position = Vector2(-43.4954, 314)
-polygon = PackedVector2Array(79, 69, 162.271, 124, 265.991, 163, 265.573, 82, 274.774, 82, 275.12, 162.867, 394.386, 163, 499.943, 134.856, 419.537, 334.574, 173.131, 311.23, 98.7011, 260)
+[node name="Polygon2D3" type="Polygon2D" parent="StaticBody2D"]
+material = SubResource("ShaderMaterial_aneyi")
+texture = ExtResource("5_52nmg")
+texture_offset = Vector2(-250, -200)
+texture_scale = Vector2(0.81, 0.81)
+polygon = PackedVector2Array(351.309, 191, 271.009, 323, 350.054, 369)
+polygons = [PackedInt32Array(0, 2, 1)]
 
-[node name="Polygon2D2" type="Polygon2D" parent="StaticBody2D"]
+[node name="Polygon2D2" type="Polygon2D" parent="StaticBody2D/Polygon2D3"]
+modulate = Color(1, 1, 1, 0.203922)
 use_parent_material = true
-position = Vector2(0, -12)
+position = Vector2(204.93, 116)
 texture = ExtResource("3_52nmg")
-polygon = PackedVector2Array(220.823, 352, 229.605, 351, 223.75, 252, 288.157, 246, 283.138, 235, 223.75, 238, 218.732, 146, 210.367, 125, 214.968, 237, 155.161, 246, 161.435, 260, 217.477, 256)
+polygon = PackedVector2Array(148.051, 360, 168.126, 313, 191.547, 288, 215.386, 288, 228.769, 301, 241.316, 365, 239.643, 292, 234.624, 211, 218.313, 146, 193.22, 99, 148.888, 79, 167.708, 160, 174.818, 225, 166.453, 286)
+
+[node name="DeathMatch" type="Timer" parent="."]

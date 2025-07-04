@@ -1,19 +1,25 @@
-[gd_scene load_steps=8 format=3 uid="uid://duthk5xq0tf80"]
+[gd_scene load_steps=9 format=3 uid="uid://duthk5xq0tf80"]
 
-[ext_resource type="Texture2D" uid="uid://de3h3ix6geivb" path="res://Game/tilemaap2.png" id="1_hcdgm"]
+[ext_resource type="Shader" uid="uid://bus3l2wrhlufp" path="res://Game/balaclaba.gdshader" id="1_o0gv8"]
 [ext_resource type="Shader" uid="uid://dqgbt06x817c5" path="res://Game/bricks.gdshader" id="2_1s2jd"]
+[ext_resource type="Texture2D" uid="uid://57se22shyjpf" path="res://icon.svg" id="2_4iy6g"]
 [ext_resource type="Texture2D" uid="uid://clsr46unqyfsl" path="res://Game/tilemaap.png" id="3_vheoc"]
-[ext_resource type="Shader" uid="uid://crkklwhnwuyeu" path="res://Game/pyramids.gdshader" id="4_o0gv8"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1s2jd"]
-shader = ExtResource("2_1s2jd")
-shader_parameter/squares_count = 83
-shader_parameter/square_color = Color(0.8, 0.67451, 0.2, 0.784314)
-shader_parameter/background_color = Color(0.101961, 0.282353, 0.419608, 0.862745)
-shader_parameter/min_size = 0.02
-shader_parameter/max_size = 0.2
-shader_parameter/pulse_speed = 1.0
-shader_parameter/seed = 10.135
+shader = ExtResource("1_o0gv8")
+shader_parameter/polar_coordinates = false
+shader_parameter/polar_center = Vector2(0, 0)
+shader_parameter/polar_zoom = 1.0
+shader_parameter/polar_repeat = 1.0
+shader_parameter/spin_rotation = 0.0
+shader_parameter/spin_speed = 1.0
+shader_parameter/offset = Vector2(0, 0)
+shader_parameter/colour_1 = Color(0.871, 0.267, 0.231, 1)
+shader_parameter/colour_2 = Color(0, 0.42, 0.706, 1)
+shader_parameter/colour_3 = Color(0.086, 0.137, 0.145, 1)
+shader_parameter/contrast = 2.0
+shader_parameter/spin_amount = 0.36
+shader_parameter/pixel_filter = 700.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hcdgm"]
 shader = ExtResource("2_1s2jd")
@@ -26,28 +32,44 @@ shader_parameter/pulse_speed = 1.16
 shader_parameter/seed = 0.035
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_4iy6g"]
-shader = ExtResource("4_o0gv8")
-shader_parameter/lines_count = 10
-shader_parameter/triangles_count = 755
-shader_parameter/triangle_color = Color(0.2, 0.152941, 1, 1)
-shader_parameter/background_color = Color(0.883478, 0.870214, 0.766748, 1)
-shader_parameter/stripe_color = Color(0, 0.367584, 0.682945, 1)
-shader_parameter/min_size = 0.05
-shader_parameter/max_size = 0.295
-shader_parameter/pulse_speed = 2.0
-shader_parameter/seed = 0.375
-shader_parameter/rotation_speed = 1.05
-shader_parameter/stripe_width = 0.325
-shader_parameter/stripe_speed = 0.34
-shader_parameter/stripe_angle = 0.895
+shader = ExtResource("1_o0gv8")
+shader_parameter/polar_coordinates = false
+shader_parameter/polar_center = Vector2(0.5, 0.5)
+shader_parameter/polar_zoom = 1.0
+shader_parameter/polar_repeat = 1.0
+shader_parameter/spin_rotation = 0.0
+shader_parameter/spin_speed = 1.0
+shader_parameter/offset = Vector2(0, 0)
+shader_parameter/colour_1 = Color(0, 0, 0, 1)
+shader_parameter/colour_2 = Color(0, 0, 0, 1)
+shader_parameter/colour_3 = Color(0, 0, 0, 1)
+shader_parameter/contrast = 2.0
+shader_parameter/spin_amount = 0.36
+shader_parameter/pixel_filter = 700.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_o0gv8"]
+shader = ExtResource("1_o0gv8")
+shader_parameter/polar_coordinates = false
+shader_parameter/polar_center = Vector2(0.5, 0.5)
+shader_parameter/polar_zoom = 2.285
+shader_parameter/polar_repeat = 8.0
+shader_parameter/spin_rotation = 0.0
+shader_parameter/spin_speed = 5.0
+shader_parameter/offset = Vector2(0, 0)
+shader_parameter/colour_1 = Color(0, 0.485579, 3.85046e-07, 1)
+shader_parameter/colour_2 = Color(0.674815, 0.674815, 0.674815, 1)
+shader_parameter/colour_3 = Color(0, 0.282353, 1, 1)
+shader_parameter/contrast = 2.0
+shader_parameter/spin_amount = 0.36
+shader_parameter/pixel_filter = 8000.0
 
 [node name="shadertest" type="Node2D"]
 
 [node name="Tilemaap2" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_1s2jd")
-position = Vector2(-2, 1)
-scale = Vector2(1, 1.03024)
-texture = ExtResource("1_hcdgm")
+position = Vector2(-114.5, -100.532)
+scale = Vector2(2.75781, 2.61668)
+texture = ExtResource("2_4iy6g")
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
 texture_filter = 3
@@ -67,5 +89,12 @@ material = SubResource("ShaderMaterial_4iy6g")
 position = Vector2(-225, 71)
 scale = Vector2(0.531896, 0.501308)
 texture = ExtResource("3_vheoc")
-polygon = PackedVector2Array(124.084, 245.358, 51.8984, 193.772, 97.5483, 79.6474, 280.148, 62.5287, 419.255, 91.76, 417.375, 191.499, 458.736, 379.009, 221.848, 430.873, 88.9888, 344.987)
+polygon = PackedVector2Array(124.084, 245.358, 51.8984, 193.772, 67.6824, 43.8852, 280.148, 62.5287, 419.255, 91.76, 417.375, 191.499, 526.419, 418.904, 221.848, 430.873, 88.9888, 344.987)
 uv = PackedVector2Array(160.317, 230.863, 51.8984, 193.772, 97.5483, 79.6474, 280.148, 62.5287, 391.419, 108.179, 442.775, 208.038, 397.125, 356.4, 234.498, 370.665, 88.9888, 344.987)
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_o0gv8")
+offset_left = 109.0
+offset_top = -255.0
+offset_right = 477.0
+offset_bottom = 28.0

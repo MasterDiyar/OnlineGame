@@ -44,7 +44,7 @@ public partial class Bullet : RigidBody2D
 	private void OnBodyEntered(Node body) { HandleHit(body); }
 
 	
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void RpcUnreliablePosition(Vector2 pos)
 	{
 		if (!IsMultiplayerAuthority())
@@ -54,17 +54,21 @@ public partial class Bullet : RigidBody2D
 	private void HandleHit(Node hitNode)
 	{
 		if (!Multiplayer.IsServer()) return;
-		GD.Print("Bullet hit something");
-
-		if (hitNode is Player player){
-			if (player.GetMultiplayerAuthority() != ShooterId)
-				player.RpcId(player.GetMultiplayerAuthority(),
-					nameof(Player.RequestTakeDamage), Damage * acceleration / 2, ShooterId);
-			if (LifeSteal != 0)
-				player.GetParent().GetNode<Player>($"{ShooterId}").RpcId(ShooterId,
-				nameof(Player.RequestTakeDamage), Damage * LifeSteal/100, ShooterId);
-		}
 		
+		GD.Print($"Bullet from {ShooterId} hit {hitNode.Name}");
+		
+		if (hitNode is Player player)
+		{
+			var targetId = player.GetMultiplayerAuthority();
+			GD.Print($"Shooter: {ShooterId}, Target: {player.GetMultiplayerAuthority()}, Target Name: {player.Name}");
+			var axe = Mathf.Clamp(acceleration / 2, 0, 50);
+			
+	        if (targetId != ShooterId)
+	            player.Rpc(nameof(Player.RequestTakeDamage), Damage * (1+axe), ShooterId);
+	        if (LifeSteal != 0)
+	            player.GetParent().GetNode<Player>($"{ShooterId}").Rpc(
+	            nameof(Player.RequestTakeDamage), Damage * LifeSteal/100, ShooterId);
+		}
 		Rpc(nameof(Destroy));
 	}
 
@@ -73,7 +77,7 @@ public partial class Bullet : RigidBody2D
 		if (Multiplayer.IsServer()){
 			var linearVelocity = Vector2.Zero;
 			acceleration += Acceletation / 100;
-			if (acceleration == 0)
+			if (Acceletation == 0)
 				linearVelocity = (float)delta * Speed * new Vector2(Mathf.Cos(Rotation), Mathf.Sin(Rotation));
 			else
 				linearVelocity = acceleration * (float)delta * Speed * new Vector2(Mathf.Cos(Rotation), Mathf.Sin(Rotation));
@@ -81,5 +85,9 @@ public partial class Bullet : RigidBody2D
 		}
 	}
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
-	private void Destroy() { QueueFree(); }
+	private void Destroy() 
+	{
+		if (IsInstanceValid(this))
+			QueueFree();
+	}
 }

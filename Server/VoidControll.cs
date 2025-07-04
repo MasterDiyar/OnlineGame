@@ -7,6 +7,7 @@ public class VoidControll
     public void AddNewPlayer(PackedScene playerScene, Node where, long id) {
         var player = playerScene.Instantiate<Player>();  
         player.Name = $"{id}";
+        player.SetMultiplayerAuthority((int)id);
         where.AddChild(player);  
     }
 

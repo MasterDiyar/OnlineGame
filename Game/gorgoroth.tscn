@@ -1,0 +1,71 @@
+[gd_scene load_steps=8 format=3 uid="uid://fqfny3qx5nnv"]
+
+[ext_resource type="Texture2D" uid="uid://c58eebowmqbqc" path="res://Game/пщкпщкще.jpg" id="1_d4n7o"]
+[ext_resource type="Shader" uid="uid://dc0bqvq4u0x51" path="res://Game/gorguna.gdshader" id="1_hu5md"]
+[ext_resource type="Script" uid="uid://pnbfahxekw1k" path="res://Game/Gorgoroth.cs" id="1_x45dw"]
+[ext_resource type="Shader" uid="uid://dgis0b8uscqtb" path="res://Game/gorgorothj.gdshader" id="2_ancjr"]
+[ext_resource type="Texture2D" uid="uid://clsr46unqyfsl" path="res://Game/tilemaap.png" id="3_ancjr"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_x45dw"]
+shader = ExtResource("1_hu5md")
+shader_parameter/A = 0.415
+shader_parameter/polar_coordinates = false
+shader_parameter/polar_center = Vector2(0.5, 0.5)
+shader_parameter/polar_zoom = 1.0
+shader_parameter/polar_repeat = 6.0
+shader_parameter/spin_rotation = 0.1
+shader_parameter/spin_speed = 0.2
+shader_parameter/offset = Vector2(0.11, 0)
+shader_parameter/contrast = 0.1
+shader_parameter/spin_amount = 0.0
+shader_parameter/pixel_filter = 6000.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hu5md"]
+shader = ExtResource("2_ancjr")
+shader_parameter/A = 1.0
+shader_parameter/polar_coordinates = false
+shader_parameter/polar_center = Vector2(0.47, 0.5)
+shader_parameter/polar_zoom = 1.0
+shader_parameter/polar_repeat = 1.0
+shader_parameter/spin_rotation = 0.0
+shader_parameter/spin_speed = 4.0
+shader_parameter/offset = Vector2(0.38, 0.27)
+shader_parameter/colour_1 = Color(0.211765, 0.196078, 0.329412, 1)
+shader_parameter/colour_2 = Color(3.85046e-06, 0.913826, 0.629017, 1)
+shader_parameter/colour_3 = Color(0.0666667, 0.172549, 0.4, 1)
+shader_parameter/contrast = 1.5
+shader_parameter/spin_amount = 0.36
+shader_parameter/pixel_filter = 700.0
+
+[node name="gorgoroth" type="Node2D"]
+script = ExtResource("1_x45dw")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="Пщкпщкще" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_x45dw")
+position = Vector2(589, 67)
+scale = Vector2(1.67571, 1.95508)
+texture = ExtResource("1_d4n7o")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+material = SubResource("ShaderMaterial_hu5md")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
+use_parent_material = true
+polygon = PackedVector2Array(1176, 291, 901, 289, 847, 386, 656, 401, 554, 399, 563, 441, 663, 444, 651, 507, 509, 500, 468, 501, 452.961, 462, 430, 462, 424, 500, 376, 527, 347, 496, 390, 470, 391, 452, 366, 446, 299, 473, 251, 483, 231, 449, 274, 436, 271, 388, 243, 405, 246, 428, 210, 435, 196, 469, 169, 459, 180, 415, 146, 365, 143, 289, -91, 289, -91, 740, 1175, 736)
+
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="StaticBody2D"]
+polygon = PackedVector2Array(748, 291, 762, 338, 671, 362, 580, 364, 511, 365, 479, 430, 421, 400, 419, 377, 467, 376, 467, 340, 441, 326, 397, 348, 389, 389, 311, 409, 311, 376, 361, 352, 340, 335, 270, 339, 214, 360, 198, 325, 198, 290)
+
+[node name="Polygon2D" type="Polygon2D" parent="StaticBody2D"]
+use_parent_material = true
+texture = ExtResource("3_ancjr")
+polygon = PackedVector2Array(1176, 291, 901, 289, 847, 386, 656, 401, 554, 399, 563, 441, 663, 444, 651, 507, 509, 500, 468, 501, 452.961, 462, 430, 462, 424, 500, 376, 527, 347, 496, 390, 470, 391, 452, 366, 446, 299, 473, 251, 483, 231, 449, 274, 436, 271, 388, 243, 405, 246, 428, 210, 435, 196, 469, 169, 459, 180, 415, 146, 365, 143, 289, -91, 289, -91, 740, 1175, 736)
+
+[node name="Polygon2D2" type="Polygon2D" parent="StaticBody2D"]
+use_parent_material = true
+texture = ExtResource("3_ancjr")
+polygon = PackedVector2Array(748, 291, 762, 338, 671, 362, 580, 364, 511, 365, 479, 430, 421, 400, 419, 377, 467, 376, 467, 340, 441, 326, 397, 348, 389, 389, 311, 409, 311, 376, 361, 352, 340, 335, 270, 339, 214, 360, 198, 325, 198, 290)
+
+[node name="DeathMatch" type="Timer" parent="."]

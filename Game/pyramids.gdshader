@@ -1,6 +1,7 @@
 shader_type canvas_item;
 
 // Настройки
+uniform float A = 1.0;
 uniform int lines_count = 10;
 uniform int triangles_count = 20;        // Количество треугольников
 uniform vec4 triangle_color : source_color = vec4(0.2, 0.6, 1.0, 1.0);
@@ -92,6 +93,7 @@ void fragment() {
 
     COLOR = mix(COLOR, glow_color, glow * 0.3);
     COLOR = mix(COLOR, triangle_color, triangle_factor);
+	COLOR.a = A;
     }
 
 }

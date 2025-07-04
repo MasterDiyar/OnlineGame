@@ -9,7 +9,8 @@ public partial class CardPick : Control
 	private string[] EpicCard = new[] { "Epic Cannon", "Prosperity" };
 	private string[] LegendaryCard = new[] { "Legendary Cannon", "Egg" };
 
-    public int[] UserQueue = [];
+    public List<int> UserQueue = new List<int>();
+    public int CurrentUser = 0;
 	public int CardCount = 5;
 	Vector2 Center = new Vector2(800, 500);
 	private float distance = 80;
@@ -17,10 +18,13 @@ public partial class CardPick : Control
 	private List<Card> spawnedCards = new List<Card>();
 	private bool hasChosen = false;
     private string[] _serverCards;
-
+    int nowChoose = 0;
     private Line2D PickLine;
 	public override void _Ready()
     {
+        foreach(var user in UserQueue)GD.Print(user.ToString());
+        SetMultiplayerAuthority(Multiplayer.GetUniqueId());
+        GD.Print(Multiplayer.GetUniqueId(), " MPS: ", GetNode<MultiplayerSynchronizer>("MultiplayerSynchronizer").GetMultiplayerAuthority());
         PickLine = GetNode<Line2D>("PickLine");
         if (Multiplayer.IsServer())
         {
@@ -33,7 +37,7 @@ public partial class CardPick : Control
             Rpc(nameof(SetCards), _serverCards);
         }
     }
-    [Rpc(MultiplayerApi.RpcMode.Authority)]
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
     private void SetCards(string[] cards)
     {
         _serverCards = cards;  /*--------------------*/  SpawnCards();
@@ -46,7 +50,7 @@ public partial class CardPick : Control
         for (float i = 0; i < _serverCards.Length; i++) {
             Card card = cardScene.Instantiate<Card>();
             card.GetNode<Label>("Text").Text = _serverCards[(int)i];
-            card.Position = Center + distance * new Vector2(1.5f*Mathf.Cos(Mathf.Pi+4*i/CardCount),Mathf.Sin(Mathf.Pi+ 4*i/CardCount));
+            card.Position = Center + distance * new Vector2(1.85f*Mathf.Cos(Mathf.Pi+4*i/CardCount),Mathf.Sin(Mathf.Pi+ 4*i/CardCount));
             card.Rotation = -Mathf.Pi/4 + Mathf.Pi/2*i / CardCount;
             AddChild(card);
             spawnedCards.Add(card);
@@ -79,8 +83,7 @@ public partial class CardPick : Control
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
     private void AllPlayersChosen()
     {
-        // Здесь можно обработать завершение выбора карт
-        // Например, скрыть интерфейс или начать следующий раунд
+        GetParent().GetNode<ServerManager>("ServerManager").Rpc("StartGame");
         foreach (int playerId in playerChoices.Keys) {
             foreach (var player in GetParent().GetChildren()) {
                 if (player is Player pl && pl.Name == playerId.ToString()) {
@@ -98,25 +101,45 @@ public partial class CardPick : Control
     }
 
 	public override void _Process(double delta)
-	{
-		if (GetNode<MultiplayerSynchronizer>("MultiplayerSynchronizer").GetMultiplayerAuthority() ==
-		    Multiplayer.GetUniqueId() && UserQueue[0] == Multiplayer.GetUniqueId())
-        {
-            int nowChoose = 0;
-            if (Input.IsActionPressed("ui_right")) {
-                nowChoose += (nowChoose +1>= CardCount) ?  1-CardCount: 1;
-            } if (Input.IsActionPressed("ui_left")) {
-                nowChoose += (nowChoose -1<= 0) ? 1-CardCount : -1;
-            } if (Input.IsActionPressed("ui_accept")) {
-                foreach (var node in GetParent().GetChildren()) {
-                    if (node is Player pl)
-                        pl.Rpc(nameof(pl.AddUpgrade), _serverCards[nowChoose]);
-                }}
-            PickLine.Position =  Center + (distance+5) * 
-                new Vector2(1.5f*Mathf.Cos(Mathf.Pi+ 4f *nowChoose/CardCount),
-                                 Mathf.Sin(Mathf.Pi+ 4f *nowChoose/CardCount));
-            PickLine.Rotation = -Mathf.Pi/4 + Mathf.Pi/2*nowChoose / CardCount;
-        }
-	}
+    {
+        var sync = GetNode<MultiplayerSynchronizer>("MultiplayerSynchronizer");
+        if (sync.GetMultiplayerAuthority() != Multiplayer.GetUniqueId()) return;
+        if (UserQueue.Count <= CurrentUser || UserQueue[CurrentUser] != Multiplayer.GetUniqueId()) return;
+        
+        
+        if (Input.IsActionJustPressed("ui_right"))
+            nowChoose = (nowChoose + 1) % CardCount;
+        if (Input.IsActionJustPressed("ui_left"))
+            nowChoose = (nowChoose - 1 + CardCount) % CardCount;
+        
+        if (Input.IsActionJustPressed("ui_accept")) {
+            GD.Print("Choosed ",_serverCards[nowChoose]," card.");
+            CurrentUser++;
+            Rpc(nameof(SetUserCount), CurrentUser);
+            foreach (var node in GetParent().GetChildren()) {
+                if (node is Player pl)
+                    pl.Rpc(nameof(pl.AddUpgrade), _serverCards[nowChoose]);
+            }}
+        PickLine.Position =  Center + (distance+5) * 
+            new Vector2(1.5f*Mathf.Cos(Mathf.Pi+ 4f *nowChoose/CardCount),
+                Mathf.Sin(Mathf.Pi+ 4f *nowChoose/CardCount));
+        PickLine.Rotation = -Mathf.Pi/4 + Mathf.Pi/2*nowChoose / CardCount;
+        Rpc(nameof(PickMeLine), PickLine.GlobalPosition, PickLine.GlobalRotation);
+        if(CurrentUser == UserQueue.Count) Rpc(nameof(AllPlayersChosen));
+    }
 
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+    public void SetUserCount(int count)
+    {
+        CurrentUser = count;
+    }
+    
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+    public void PickMeLine(Vector2 position, float rotation)
+    {
+        //if (!IsMultiplayerAuthority()) {
+            PickLine.GlobalPosition = position;
+            PickLine.GlobalRotation = rotation;
+        //}
+    }
 }

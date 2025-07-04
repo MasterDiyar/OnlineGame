@@ -33,6 +33,8 @@ public partial class Player : CharacterBody2D
 		{ "walljumppush", 200f },
 		{ "bulletgravity", 981f },
 		{ "walljumpforce", 250f },
+		{ "bulletacceleration", 0},
+		{ "lifesteal", 1},
 	};
 
 	[Export] public PackedScene BulletScene{get; set;}
@@ -51,10 +53,11 @@ public partial class Player : CharacterBody2D
 
 	public bool CardVibor = true;
 	public bool Died = false;
-	private bool reload = true;
+	private bool reload = true, lifesteal = false;
 	
 	public override void _Ready()
 	{
+		GD.Print(Multiplayer.GetUniqueId(), " Player MPS: ", GetNode<MultiplayerSynchronizer>("MultiplayerSynchronizer").GetMultiplayerAuthority());
 		ReloadTimer = GetNode<Timer>("ReloadTimer");
 		Upgrades = GetNode<Upgrades>("upgrades");
 		HpLine = GetNode<Line2D>("Line2D");
@@ -68,7 +71,7 @@ public partial class Player : CharacterBody2D
 		MaxHp = Origin["hp"] * Upgrades.HpModifier;
         		Hp = MaxHp;
 		Damage = Origin["damage"] * Upgrades.DamageModifier;
-		Armor = Origin["armor"] * Upgrades.ArmorModifier;
+		Armor = Origin["armor"] + Upgrades.ArmorModifier;
 		Speed = Origin["speed"] * Upgrades.SpeedModifier;
 		Gravity = Origin["gravity"] * Upgrades.GravityModifier;
 		JumpForce = -Origin["jumpforce"] * Upgrades.JumpModifier; 
@@ -78,7 +81,7 @@ public partial class Player : CharacterBody2D
 		Ammo = Math.Min(1, (int)Origin["ammo"] + Upgrades.AmmoCountModifier);
 		BulletCount = Math.Min(1, (int)Origin["bulletcount"] + Upgrades.BulletCountModifier);
 		CardVibor = true;
-		ReloadTimer.SetWaitTime((int)Origin["reloadtime"]*Upgrades.ReloadModifier);
+		ReloadTimer.SetWaitTime(Origin["reloadtime"]*Upgrades.ReloadModifier);
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -169,7 +172,7 @@ public partial class Player : CharacterBody2D
 			Rpc(nameof(PerformShoot), angle, Multiplayer.GetRemoteSenderId());
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
 	private void PerformShoot(float angle, int shooterId)
 	{
 		var bullet = BulletScene.Instantiate<Bullet>();
@@ -195,35 +198,46 @@ public partial class Player : CharacterBody2D
 	public void RequestTakeDamage(float damage, int attackerId)
 	{
 		// Only server processes damage
-		if (Multiplayer.IsServer()){
-			Hp -= damage;
-			GD.Print($"{Name} took {damage} damage from {attackerId}. HP: {Hp}");
-			Rpc(nameof(UpdateHealth), Hp);
+		if (!Multiplayer.IsServer()) return;
+		
+		Hp -= damage;
+		GD.Print($"{Name} took {damage} damage from {attackerId}. HP: {Hp}");
+		Rpc(nameof(UpdateHealth), Hp);
         
-			if (Hp <= 0)
-				Rpc(nameof(PerformDie), attackerId);
-		}
+		if (Hp <= 0)
+			RpcId(GetMultiplayerAuthority() ,nameof(PerformDie), attackerId);
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
 	private void UpdateHealth(float newHp) {
 		Hp = newHp;
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
 	public void PerformDie(int killerId)
 	{
+		Position = Vector2.One * 100000;
 		if (Died) return;
-		Died = true;
+		Died = true; Visible = false;
 		var server = GetParent().GetNode<ServerManager>("ServerManager");
-		Visible = false;
 		SetProcess(false);
 		SetPhysicsProcess(false);
+
+		server.RpcId(1, nameof(ServerManager.RequestAddDied), Name);
 		
-		server.RpcId(1,nameof(ServerManager.CheckGameOver), Name.ToString());
+		server.RpcId(1,nameof(ServerManager.CheckGameOver));
+	}
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+	public void PerformWinnerDie()
+	{
+		Position = Vector2.One * 100000;
+		if (Died) return;
+		Died = true; Visible = false;
+		SetProcess(false);
+		SetPhysicsProcess(false);
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
 	public void PerformRespawn()
 	{
 		Died = false;
@@ -235,7 +249,7 @@ public partial class Player : CharacterBody2D
 		RoundStart();
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true)]
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
 	public void AddUpgrade(string upgradeName)
 	{
 		Upgrades.ConsumeUpgrade(upgradeName);
@@ -244,6 +258,3 @@ public partial class Player : CharacterBody2D
 //King of hill
 //Save the crown
 //
-
-
-
