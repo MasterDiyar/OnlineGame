@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://brthyfg8hji28"]
+[gd_scene load_steps=10 format=3 uid="uid://brthyfg8hji28"]
 
 [ext_resource type="Script" uid="uid://bc040diqpoe3x" path="res://User/Player.cs" id="1_8bprb"]
-[ext_resource type="Texture2D" uid="uid://57se22shyjpf" path="res://icon.svg" id="1_xwu5f"]
 [ext_resource type="PackedScene" uid="uid://bc7jtpmd77b0h" path="res://User/bullet.tscn" id="2_8rn6p"]
 [ext_resource type="Texture2D" uid="uid://bx1b8spdtj1b6" path="res://User/Player.png" id="3_7sxjh"]
+[ext_resource type="Texture2D" uid="uid://dqcuerhk5ivgs" path="res://User/crossbow.png" id="4_36tpc"]
 [ext_resource type="Script" uid="uid://cjugadnqqar6o" path="res://User/Upgrades.cs" id="5_36tpc"]
+[ext_resource type="PackedScene" uid="uid://b5k81w24x3o62" path="res://User/fallpart.tscn" id="6_qbxva"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_7sxjh"]
 radius = 3.95
@@ -45,15 +46,9 @@ replication_config = SubResource("SceneReplicationConfig_8bprb")
 [node name="Node2D" type="Node2D" parent="."]
 position = Vector2(12.5, 0)
 
-[node name="Icon2" type="Sprite2D" parent="Node2D"]
-position = Vector2(-1, 1)
-scale = Vector2(0.0117188, 0.0234375)
-texture = ExtResource("1_xwu5f")
-
-[node name="Icon3" type="Sprite2D" parent="Node2D"]
-position = Vector2(1.25, -5.96046e-08)
-scale = Vector2(0.0273438, 0.0078125)
-texture = ExtResource("1_xwu5f")
+[node name="Crossbow" type="Sprite2D" parent="Node2D"]
+scale = Vector2(0.07, 0.07)
+texture = ExtResource("4_36tpc")
 
 [node name="Line2D" type="Line2D" parent="."]
 points = PackedVector2Array(-7.5, -10.5, 7.5, -10.5)
@@ -69,3 +64,6 @@ script = ExtResource("5_36tpc")
 shape = SubResource("CircleShape2D_7sxjh")
 
 [node name="ReloadTimer" type="Timer" parent="."]
+
+[node name="CPUParticles2D" parent="." instance=ExtResource("6_qbxva")]
+scale = Vector2(1.0043, 1)

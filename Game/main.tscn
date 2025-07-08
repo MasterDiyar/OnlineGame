@@ -15,4 +15,4 @@ SpawnNode = NodePath("..")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 anchor_mode = 0
-zoom = Vector2(2.5, 2.5)
+zoom = Vector2(1.715, 1.64)

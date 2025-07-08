@@ -1,6 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://hnw6wwn7vc6l"]
+[gd_scene load_steps=6 format=3 uid="uid://hnw6wwn7vc6l"]
 
 [ext_resource type="Script" uid="uid://cda0d6lp0om77" path="res://Game/Menu.cs" id="1_t1iua"]
+[ext_resource type="Texture2D" uid="uid://c0xqs68enyqql" path="res://Game/MenuBg.png" id="2_20pfc"]
+[ext_resource type="Texture2D" uid="uid://coeglncni7v3q" path="res://Game/logo.png" id="3_4wg8b"]
+[ext_resource type="FontFile" uid="uid://o85oqthowgmi" path="res://Game/Stonehenge.ttf" id="4_hcdht"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_4wg8b"]
 
 [node name="Menu" type="Control"]
 layout_mode = 3
@@ -11,51 +16,92 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_t1iua")
 
+[node name="MenuBg" type="Sprite2D" parent="."]
+texture = ExtResource("2_20pfc")
+centered = false
+
+[node name="Logo" type="Sprite2D" parent="MenuBg"]
+use_parent_material = true
+position = Vector2(118, 101)
+scale = Vector2(0.208008, 0.199219)
+texture = ExtResource("3_4wg8b")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+color = Color(0.882353, 0.701961, 0.262745, 1)
+polygon = PackedVector2Array(0, 200, 270, 200, 220, 250, 1, 250)
+
 [node name="Host" type="Button" parent="."]
 layout_mode = 0
-offset_left = 15.0
-offset_top = 11.0
-offset_right = 174.0
-offset_bottom = 53.0
+offset_left = 40.0
+offset_top = 205.0
+offset_right = 360.0
+offset_bottom = 286.0
+scale = Vector2(0.5, 0.5)
+theme_override_colors/font_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.894922, 0.894922, 0.894922, 1)
+theme_override_colors/font_focus_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("4_hcdht")
+theme_override_font_sizes/font_size = 48
 text = "HOST"
+flat = true
 
 [node name="Join" type="Button" parent="."]
 layout_mode = 0
-offset_left = 15.0
-offset_top = 64.0
-offset_right = 176.0
-offset_bottom = 121.0
+offset_left = 40.0
+offset_top = 255.0
+offset_right = 360.0
+offset_bottom = 336.0
+scale = Vector2(0.5, 0.5)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("4_hcdht")
+theme_override_font_sizes/font_size = 48
+shortcut_feedback = false
+shortcut_in_tooltip = false
 text = "JOIN"
+flat = true
 
 [node name="TextEdit" type="TextEdit" parent="."]
 layout_mode = 0
-offset_left = 15.0
-offset_top = 130.0
-offset_right = 177.0
-offset_bottom = 177.0
+offset_left = 40.0
+offset_top = 355.0
+offset_right = 200.0
+offset_bottom = 395.0
 placeholder_text = "ip:"
-
-[node name="Label" type="Label" parent="."]
-layout_mode = 0
-offset_left = 537.0
-offset_top = 16.0
-offset_right = 577.0
-offset_bottom = 39.0
-text = "i am host?"
 
 [node name="Start" type="Button" parent="."]
 layout_mode = 0
-offset_left = 253.0
-offset_top = 100.0
-offset_right = 494.0
-offset_bottom = 192.0
+offset_left = 40.0
+offset_top = 305.0
+offset_right = 360.0
+offset_bottom = 386.0
+scale = Vector2(0.5, 0.5)
+theme_override_fonts/font = ExtResource("4_hcdht")
+theme_override_font_sizes/font_size = 48
 disabled = true
 text = "START"
+flat = true
 
 [node name="Name" type="TextEdit" parent="."]
 layout_mode = 0
-offset_left = 15.0
-offset_top = 190.0
-offset_right = 179.0
-offset_bottom = 230.0
+offset_left = 40.0
+offset_top = 405.0
+offset_right = 200.0
+offset_bottom = 445.0
 placeholder_text = "name:"
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+physics_material_override = SubResource("PhysicsMaterial_4wg8b")
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
+visible = false
+polygon = PackedVector2Array(1000, 300, 975, 350, 575, 350, 550, 300)
+
+[node name="Polygon2D" type="Polygon2D" parent="StaticBody2D"]
+color = Color(0.882353, 0.701961, 0.262745, 1)
+polygon = PackedVector2Array(1000, 300, 975, 350, 575, 350, 550, 300)
+
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="StaticBody2D"]
+visible = false
+polygon = PackedVector2Array(550, 300, 513, 300, 510, 64, 1034, 59, 1032, 301, 1000, 300, 998, 94, 550, 97)

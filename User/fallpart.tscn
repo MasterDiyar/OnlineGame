@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://b5k81w24x3o62"]
+
+[node name="CPUParticles2D" type="CPUParticles2D"]
+emitting = false
+amount = 16
+one_shot = true
+explosiveness = 0.58
+randomness = 1.0
+angular_velocity_max = 1.0
+orbit_velocity_min = -20.0
+orbit_velocity_max = 20.0
+angle_max = 29.1
+scale_amount_min = 0.0
+scale_amount_max = 5.0
+color = Color(1, 1, 0.207843, 1)

@@ -7,6 +7,7 @@ public partial class Bullet : RigidBody2D
 	public float Speed = 100f;
 	public float Acceletation = 0, acceleration = 0;
 	public float GravityForce = 981f, LifeSteal = 0;
+	public string[] Attributes { get; set; }
 	public int ShooterId { get; set; } 
 
 	public override void _Ready()
@@ -68,6 +69,18 @@ public partial class Bullet : RigidBody2D
 	        if (LifeSteal != 0)
 	            player.GetParent().GetNode<Player>($"{ShooterId}").Rpc(
 	            nameof(Player.RequestTakeDamage), Damage * LifeSteal/100, ShooterId);
+			if (Attributes != null)
+	        foreach (var attribute in Attributes)
+		        switch (attribute.Split(":")[0])
+		        {
+			        case "poison":
+				        var chld = GD.Load<PackedScene>("res://User/damagedeal.tscn").Instantiate<Damagedeal>();
+				        chld.Damage = float.Parse(attribute.Split(":")[1]);
+				        chld.Times = int.Parse(attribute.Split(":")[2]);
+				        chld.WaitTime = float.Parse(attribute.Split(":")[3]);
+				        player.AddChild(chld);
+				        break;
+		        }
 		}
 		Rpc(nameof(Destroy));
 	}

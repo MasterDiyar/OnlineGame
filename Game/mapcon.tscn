@@ -52,7 +52,7 @@ polygon = PackedVector2Array(128, 256, 304, 256, 304, 304, 320, 304, 320, 352, 2
 polygon = PackedVector2Array(96, 352, 160, 352, 160, 432, 96, 432)
 
 [node name="CollisionPolygon2D3" type="CollisionPolygon2D" parent="StaticBody2D"]
-polygon = PackedVector2Array(80, 464, 176, 464, 176, 560, 288, 560, 288, 544, 304, 544, 304, 464, 400, 464, 401, 544, 624, 544, 624, 496, 736, 496, 736, 400, 816, 400, 816, 528, 688, 576, 336, 592, 288, 608, 160, 608, 80, 576)
+polygon = PackedVector2Array(80, 464, 176, 464, 176, 560, 288, 560, 288, 544, 304, 544, 304, 464, 400, 464, 401, 544, 624, 544, 624, 496, 736, 496, 736, 400, 816, 400, 815.663, 427, 1030, 427, 1030, 478, 815, 478, 815, 529, 688, 576, 336, 592, 288, 608, 160, 608, 80, 576)
 
 [node name="CollisionPolygon2D4" type="CollisionPolygon2D" parent="StaticBody2D"]
 polygon = PackedVector2Array(576, 464, 576, 384, 704, 384, 704, 464)
@@ -75,7 +75,7 @@ polygon = PackedVector2Array(96, 352, 160, 352, 160, 432, 96, 432)
 use_parent_material = true
 texture = ExtResource("2_trda7")
 texture_scale = Vector2(0.5, 0.5)
-polygon = PackedVector2Array(80, 464, 176, 464, 176, 560, 288, 560, 288, 544, 304, 544, 304, 464, 400, 464, 401, 544, 624, 544, 624, 496, 736, 496, 736, 400, 816, 400, 816, 528, 688, 576, 336, 592, 288, 608, 160, 608, 80, 576)
+polygon = PackedVector2Array(80, 464, 176, 464, 176, 560, 288, 560, 288, 544, 304, 544, 304, 464, 400, 464, 401, 544, 624, 544, 624, 496, 736, 496, 736, 400, 816, 400, 815.663, 427, 1030, 427, 1030, 478, 815, 478, 815, 529, 688, 576, 336, 592, 288, 608, 160, 608, 80, 576)
 
 [node name="Polygon2D4" type="Polygon2D" parent="StaticBody2D"]
 use_parent_material = true

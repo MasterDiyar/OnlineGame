@@ -1,0 +1,4 @@
+res://User/Player.png
+res://User/knight1.png
+res://User/knight2.png
+res://User/logoknight.png

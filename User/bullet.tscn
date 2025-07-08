@@ -1,23 +1,22 @@
-[gd_scene load_steps=7 format=3 uid="uid://bc7jtpmd77b0h"]
+[gd_scene load_steps=6 format=3 uid="uid://bc7jtpmd77b0h"]
 
 [ext_resource type="Script" uid="uid://c4ygsed2jiwsp" path="res://User/Bullet.cs" id="1_ru1yn"]
-[ext_resource type="Texture2D" uid="uid://57se22shyjpf" path="res://icon.svg" id="1_tssu3"]
+[ext_resource type="Texture2D" uid="uid://dx253ibm7tqi6" path="res://User/bolt.png" id="2_ru1yn"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ru1yn"]
 rough = true
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_ru1yn"]
-radius = 3.0
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ru1yn"]
+radius = 1.0
+height = 6.0
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ru1yn"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 1
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_osnt5"]
-radius = 3.0
-
 [node name="Bullet" type="RigidBody2D"]
+texture_filter = 3
 disable_mode = 2
 physics_material_override = SubResource("PhysicsMaterial_ru1yn")
 lock_rotation = true
@@ -26,11 +25,12 @@ max_contacts_reported = 4
 script = ExtResource("1_ru1yn")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_ru1yn")
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_ru1yn")
 
 [node name="Icon" type="Sprite2D" parent="."]
-scale = Vector2(0.05, 0.05)
-texture = ExtResource("1_tssu3")
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("2_ru1yn")
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 3.0
@@ -41,5 +41,6 @@ replication_config = SubResource("SceneReplicationConfig_ru1yn")
 
 [node name="Area2D" type="Area2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-shape = SubResource("CircleShape2D_osnt5")
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Area2D"]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_ru1yn")

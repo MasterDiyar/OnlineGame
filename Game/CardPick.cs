@@ -1,18 +1,18 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class CardPick : Control
 {
-	private string[] CommonCard = new[] { "Speed Up", "Fast Reload", "Pulemet", "Multi Shot", "Glass Cannon", "Moon Walk", "Bottom of sea"};
-	private string[] RareCard = new[] { "Rare Cannon", "Mise Dice" };
-	private string[] EpicCard = new[] { "Epic Cannon", "Prosperity" };
-	private string[] LegendaryCard = new[] { "Legendary Cannon", "Egg" };
-
+	private string[] CommonCard = new[] {"Slow Down","More Bullets", "Speed Up", "Fast Reload","Bad Breakfast","Bread", "Pulemet", "Multi Shot", "Glass Cannon", "Moon Walk", "Bottom of sea"};
+	private string[] RareCard = new[] { "Bless of Church", "Alchemist Arrow","Egyptian Beer","Dwarf Forge", "Good Breakfast","Irish Beer" };
+	private string[] EpicCard = new[] { "Knowledge of Hunters","Mastery of Ages"};
+	private string[] LegendaryCard = new[] { "Poison arrow","Obsidian arrow" };
     public List<int> UserQueue = new List<int>();
     public int CurrentUser = 0;
 	public int CardCount = 5;
-	Vector2 Center = new Vector2(800, 500);
+	static Vector2 Center = new Vector2(800, 500);
 	private float distance = 80;
 	private Dictionary<int, string> playerChoices = new Dictionary<int, string>();
 	private List<Card> spawnedCards = new List<Card>();
@@ -49,9 +49,12 @@ public partial class CardPick : Control
         
         for (float i = 0; i < _serverCards.Length; i++) {
             Card card = cardScene.Instantiate<Card>();
-            card.GetNode<Label>("Text").Text = _serverCards[(int)i];
-            card.Position = Center + distance * new Vector2(1.85f*Mathf.Cos(Mathf.Pi+4*i/CardCount),Mathf.Sin(Mathf.Pi+ 4*i/CardCount));
+            card.SetUp(_serverCards[(int)i]);
+            card.Position = Center + (5 + distance) * 
+                new Vector2(1.85f*Mathf.Cos(Mathf.Pi+4*i/CardCount),
+                    Mathf.Sin(Mathf.Pi+ 4*i/CardCount));
             card.Rotation = -Mathf.Pi/4 + Mathf.Pi/2*i / CardCount;
+            GD.Print(card.Position, "card named: ", _serverCards[(int)i]);
             AddChild(card);
             spawnedCards.Add(card);
         }
@@ -107,21 +110,26 @@ public partial class CardPick : Control
         if (UserQueue.Count <= CurrentUser || UserQueue[CurrentUser] != Multiplayer.GetUniqueId()) return;
         
         
-        if (Input.IsActionJustPressed("ui_right"))
+        if (Input.IsActionJustPressed("right"))
             nowChoose = (nowChoose + 1) % CardCount;
-        if (Input.IsActionJustPressed("ui_left"))
+        if (Input.IsActionJustPressed("left"))
             nowChoose = (nowChoose - 1 + CardCount) % CardCount;
         
         if (Input.IsActionJustPressed("ui_accept")) {
             GD.Print("Choosed ",_serverCards[nowChoose]," card.");
-            CurrentUser++;
-            Rpc(nameof(SetUserCount), CurrentUser);
-            foreach (var node in GetParent().GetChildren()) {
-                if (node is Player pl)
-                    pl.Rpc(nameof(pl.AddUpgrade), _serverCards[nowChoose]);
+            var had = false;
+            foreach (var card in playerChoices.Keys.Where(card => playerChoices[card] == _serverCards[nowChoose]))
+                had = true;
+            
+            if (!had) {
+                CurrentUser++;
+                Rpc(nameof(SetUserCount), CurrentUser);
+                foreach (var node in GetParent().GetChildren())
+                    if (node is Player pl)
+                        pl.Rpc(nameof(pl.AddUpgrade), _serverCards[nowChoose]);
             }}
         PickLine.Position =  Center + (distance+5) * 
-            new Vector2(1.5f*Mathf.Cos(Mathf.Pi+ 4f *nowChoose/CardCount),
+            new Vector2(1.85f*Mathf.Cos(Mathf.Pi+ 4f *nowChoose/CardCount),
                 Mathf.Sin(Mathf.Pi+ 4f *nowChoose/CardCount));
         PickLine.Rotation = -Mathf.Pi/4 + Mathf.Pi/2*nowChoose / CardCount;
         Rpc(nameof(PickMeLine), PickLine.GlobalPosition, PickLine.GlobalRotation);

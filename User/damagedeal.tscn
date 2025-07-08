@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://clawyndbfpfb2"]
+
+[ext_resource type="Script" uid="uid://dl12o51ybkrd0" path="res://User/Damagedeal.cs" id="1_p8grs"]
+
+[node name="damagedeal" type="Timer"]
+script = ExtResource("1_p8grs")

@@ -1,11 +1,13 @@
 using Godot;
 using System;
+using System.IO;
+using AgeOfEmpires.Server;
 using Godot.Collections;
 
 public partial class Player : CharacterBody2D
 {
 	[Export] public float Speed = 100f;
-	[Export] public float Damage = 2f;
+	[Export] public float Damage = 0;
 	[Export] public float Gravity = 981f;
 	[Export] public float JumpForce = -450f;
 	[Export] public float CoyoteTime = 0.25f; 
@@ -27,7 +29,7 @@ public partial class Player : CharacterBody2D
 		{ "gravity", 981f },
 		{ "bulletcount", 5 },
 		{ "jumpforce", 450f },
-		{ "reloadtime", 0.8f },
+		{ "reloadtime", 2f },
 		{ "coyotetime", 0.25f },
 		{ "bulletspeed", 400f },
 		{ "walljumppush", 200f },
@@ -41,6 +43,9 @@ public partial class Player : CharacterBody2D
 	private float _bulletSpeed = 400f;
 	private float _bulletGravity = 981f;
 	private float coyoteTimer = 0f;
+	private string[] skins;
+	private int currentSkin = 0;
+	private int currentColor = 0;
 	public float MaxHp = 10f, Hp = 10f;
 	public float Angle = 0f;
 	public int BulletLeft = 5;
@@ -50,18 +55,28 @@ public partial class Player : CharacterBody2D
 	private Line2D HpLine;
 	private Node2D Weapon;
 	private Timer ReloadTimer;
+	private CpuParticles2D FallParticle;
+	private PackedScene FallParticleScene;
+	private Sprite2D Icon;
+	private VoidControll _controll;
 
+	public bool OnMenu = true;
 	public bool CardVibor = true;
 	public bool Died = false;
 	private bool reload = true, lifesteal = false;
 	
 	public override void _Ready()
 	{
+		_controll = new VoidControll();
+		skins = File.ReadAllLines("User/skins.txt");
+		FallParticleScene = GD.Load<PackedScene>("res://User/fallpart.tscn");
 		GD.Print(Multiplayer.GetUniqueId(), " Player MPS: ", GetNode<MultiplayerSynchronizer>("MultiplayerSynchronizer").GetMultiplayerAuthority());
 		ReloadTimer = GetNode<Timer>("ReloadTimer");
 		Upgrades = GetNode<Upgrades>("upgrades");
+		Icon = GetNode<Sprite2D>("Icon");
 		HpLine = GetNode<Line2D>("Line2D");
 		Weapon = GetNode<Node2D>("Node2D");
+		FallParticle = GetNode<CpuParticles2D>("CPUParticles2D");
 		GetNode<MultiplayerSynchronizer>("MultiplayerSynchronizer").SetMultiplayerAuthority(int.Parse(Name));
 		ReloadTimer.Timeout += Reloading;
 	}
@@ -90,6 +105,9 @@ public partial class Player : CharacterBody2D
 		HpLine.SetPointPosition(1, new Vector2(-7.5f + 15f * linehp, -10.5f));
 		if (GetNode<MultiplayerSynchronizer>("MultiplayerSynchronizer").GetMultiplayerAuthority() == Multiplayer.GetUniqueId() && CardVibor)
 		{
+			if (OnMenu)
+				Wardrobe();
+			
 			Vector2 velocity = Velocity;
 
 			inputDir = new Vector2(
@@ -129,7 +147,12 @@ public partial class Player : CharacterBody2D
 	public void FallCheck()
 	{
 		if (Position.Y >= 700) Position += Vector2.Up * 700;
-		if (Position.X >= 1200) Position += Vector2.Left * 1200;
+		if (Position.X >= 1200) {
+			var oar = FallParticleScene.Instantiate<CpuParticles2D>();
+			oar.Finished += QueueFree;
+			GetParent().AddChild(oar);
+			Position += Vector2.Left * 1200;
+		}
 		if (Position.X <= -50) Position += Vector2.Right * 1200;
 	}
 
@@ -156,8 +179,7 @@ public partial class Player : CharacterBody2D
 
 	private new Vector2 GetWallNormal()
     {
-        for (int i = 0; i < GetSlideCollisionCount(); i++)
-        {
+        for (int i = 0; i < GetSlideCollisionCount(); i++) {
             var collision = GetSlideCollision(i);
             if (Mathf.Abs(collision.GetNormal().X) > 0.9f)
                 return collision.GetNormal();
@@ -165,6 +187,39 @@ public partial class Player : CharacterBody2D
         return Vector2.Zero;
     }
 
+	public void Wardrobe()
+	{
+		bool cliked = false;
+		if (Input.IsActionJustPressed("down")) { cliked = true;
+			currentSkin = (1 + currentSkin) % skins.Length;
+			Icon.Texture = GD.Load<Texture2D>(skins[currentSkin]);
+		} if (Input.IsActionJustPressed("up")) {cliked = true;
+			currentSkin = (-1 + currentSkin+skins.Length) % skins.Length;
+			Icon.Texture = GD.Load<Texture2D>(skins[currentSkin]);
+		}
+
+		if (Input.IsActionJustPressed("right")) {cliked = true;
+			currentColor = (1 + currentColor) % _controll.Colours.Length;
+			Icon.Modulate = _controll.Colours[currentColor];
+		} if (Input.IsActionJustPressed("left")) {cliked = true;
+			currentColor = (-1 + currentColor+ _controll.Colours.Length) % _controll.Colours.Length;
+			Icon.Modulate = _controll.Colours[currentColor];
+		}
+		if (cliked)
+			Rpc(nameof(UpdatePlayerAppearance), currentSkin, currentColor);
+	}
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+	public void UpdatePlayerAppearance(int skinIndex, int colorIndex)
+	{
+		// Применяем изменения внешности
+		Icon.Texture = GD.Load<Texture2D>(skins[skinIndex]);
+		Icon.Modulate = _controll.Colours[colorIndex];
+    
+		// Обновляем текущие значения (если нужно для локального игрока)
+		currentSkin = skinIndex;
+		currentColor = colorIndex;
+	}
+	
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	private void RequestShoot(float angle)
 	{
@@ -180,10 +235,10 @@ public partial class Player : CharacterBody2D
 		Vector2 spawnOffset = 24f * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
 		bullet.GlobalPosition = GlobalPosition + spawnOffset;
 		bullet.Rotation = angle;
-		
+		bullet.Damage = Damage;
 		bullet.Speed = _bulletSpeed;
-		bullet.ShooterId = shooterId; 
-		
+		bullet.ShooterId = shooterId;
+		bullet.Attributes = Upgrades.BulletAttributes;
 		GetTree().Root.AddChild(bullet);
 	}
 
@@ -222,7 +277,7 @@ public partial class Player : CharacterBody2D
 		var server = GetParent().GetNode<ServerManager>("ServerManager");
 		SetProcess(false);
 		SetPhysicsProcess(false);
-
+		SetCollisionMaskValue(1, false);
 		server.RpcId(1, nameof(ServerManager.RequestAddDied), Name);
 		
 		server.RpcId(1,nameof(ServerManager.CheckGameOver));
@@ -230,6 +285,7 @@ public partial class Player : CharacterBody2D
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
 	public void PerformWinnerDie()
 	{
+		SetCollisionMaskValue(1, true);
 		Position = Vector2.One * 100000;
 		if (Died) return;
 		Died = true; Visible = false;
@@ -242,7 +298,7 @@ public partial class Player : CharacterBody2D
 	{
 		Died = false;
 		Visible = true;
-		
+		SetCollisionMaskValue(1, true);		
 		SetProcess(true);
 		SetPhysicsProcess(true);
 		Hp = MaxHp;

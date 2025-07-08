@@ -1,6 +1,23 @@
-[gd_scene load_steps=3 format=3 uid="uid://xkfrup4enqnj"]
+[gd_scene load_steps=5 format=3 uid="uid://xkfrup4enqnj"]
 
 [ext_resource type="Script" uid="uid://cvfftpcj2mufl" path="res://Game/CardPick.cs" id="1_f0ium"]
+[ext_resource type="Shader" uid="uid://bus3l2wrhlufp" path="res://Game/balaclaba.gdshader" id="2_qsgsr"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wkxl5"]
+shader = ExtResource("2_qsgsr")
+shader_parameter/polar_coordinates = false
+shader_parameter/polar_center = Vector2(0.5, 0.5)
+shader_parameter/polar_zoom = 1.0
+shader_parameter/polar_repeat = 1.0
+shader_parameter/spin_rotation = 0.0
+shader_parameter/spin_speed = 7.0
+shader_parameter/offset = Vector2(-0.475, 0.1)
+shader_parameter/colour_1 = Color(0.188235, 0, 0.341176, 1)
+shader_parameter/colour_2 = Color(0.0807223, 0.0509909, 0.454908, 1)
+shader_parameter/colour_3 = Color(0.00784314, 0, 0.352941, 1)
+shader_parameter/contrast = 2.0
+shader_parameter/spin_amount = 0.36
+shader_parameter/pixel_filter = 8400.0
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_f0ium"]
 
@@ -13,8 +30,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_f0ium")
 
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_wkxl5")
+layout_mode = 0
+offset_left = 396.0
+offset_top = 156.0
+offset_right = 1211.0
+offset_bottom = 647.0
+
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(822, 511)
+position = Vector2(800, 400)
 zoom = Vector2(2.5, 2.5)
 
 [node name="PickLine" type="Line2D" parent="."]
