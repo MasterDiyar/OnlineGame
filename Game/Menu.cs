@@ -21,7 +21,15 @@ public partial class Menu : Control
 		_start.MouseEntered += () => { line. Position = _start.Position-new Vector2(40, 205); };
 	}
 
-
+	public void ShowConnectionError(string message)
+	{
+		var errorLabel = GetNode<Label>("ErrorLabel");
+		errorLabel.Text = message;
+		errorLabel.Visible = true;
+    
+		Callable.From(() => errorLabel.QueueFree()).CallDeferred(5.0);
+	}
+	
 	public void HostButtonOff()
 	{
 		_start.Disabled = false;
@@ -33,5 +41,11 @@ public partial class Menu : Control
 	{
 		_host.Disabled = true;
 		_join.Disabled = true;
+	}
+
+	public void UserButtonOn()
+	{
+		_host.Disabled = false;
+		_join.Disabled = false;
 	}
 }

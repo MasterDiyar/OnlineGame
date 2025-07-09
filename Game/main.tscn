@@ -7,6 +7,10 @@
 [node name="main" type="Node"]
 script = ExtResource("1_gab3r")
 
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 6
+visible = false
+
 [node name="Menu" parent="." node_paths=PackedStringArray("WhereButtonBe") instance=ExtResource("1_f5lw1")]
 WhereButtonBe = NodePath("../ServerManager")
 
